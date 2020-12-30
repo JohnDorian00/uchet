@@ -1,0 +1,23 @@
+{
+  "name": "uchet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron --inspect ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JohnDorian00/uchet.git"
+  },
+  "keywords": [],
+  "author": "Musyl Nikita",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JohnDorian00/uchet/issues"
+  },
+  "homepage": "https://github.com/JohnDorian00/uchet#readme",
+  "devDependencies": {
+    "electron": "^11.1.1"
+  }
+}
