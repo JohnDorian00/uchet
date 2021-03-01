@@ -4,7 +4,23 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "electron --inspect ."
+    "dev": "electron --debug --inspect .",
+    "build": "electron-packager . --overwrite 'uchet' --platform=win32 --arch=ia32",
+    "test": "mocha && standard",
+    "generate-test-report": "mocha --reporter=json > report.json",
+    "package": "npm-run-all package:*",
+    "package:mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --out=out --icon=assets/app-icon/mac/app.icns --osx-sign.identity='Developer ID Application: GitHub' --extend-info=assets/mac/info.plist",
+    "package:win": "electron-packager . --overwrite --platform=win32 --arch=ia32 --out=out --icon=assets/app-icon/win/app.ico",
+    "package:linux": "electron-packager . --overwrite --platform=linux --arch=x64 --out=out",
+    "package:sign-exe": "signcode './out/Electron API Demos-win32-ia32/Electron API Demos.exe' --cert ~/electron-api-demos.p12 --prompt --name 'Electron API Demos' --url 'http://electron.atom.io'",
+    "package:installer": "node ./script/installer.js",
+    "package:sign-installer": "signcode './out/windows-installer/ElectronAPIDemosSetup.exe' --cert ~/electron-api-demos.p12 --prompt --name 'Electron API Demos' --url 'http://electron.atom.io'",
+    "xpackage:mas": "./script/mas.sh",
+    "windows-store": "node ./script/windows-store.js",
+    "release": "node ./script/release.js",
+    "prepack": "check-for-leaks",
+    "prepush": "check-for-leaks",
+    "buildexe": "node buildEXE.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +34,13 @@
   },
   "homepage": "https://github.com/JohnDorian00/uchet#readme",
   "devDependencies": {
-    "electron": "^11.1.1"
+    "electron": "^11.1.1",
+    "electron-packager": "^15.2.0",
+    "electron-winstaller": "^5.0.0"
+  },
+  "standard": {
+    "env": {
+      "mocha": true
+    }
   }
 }
