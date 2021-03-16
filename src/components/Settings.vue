@@ -37,26 +37,8 @@
       <button id="toggle-dark-mode">Toggle Dark Mode</button>
       <button id="reset-to-system">Reset to System Theme</button>
 
-      <!--      <div style="flex: 1 1 1px; display: flex; align-items: center; width: 100%;">-->
-      <!--        <div style="flex: 1 1 1px; margin-right: 10px;">-->
-      <!--          Директор института:-->
-      <!--        </div>-->
-      <!--        <div style="flex: 1 1 1px">-->
-      <!--          <smart-text-box placeholder=""></smart-text-box>-->
-      <!--        </div>-->
-      <!--      </div>-->
-
-      <!--      <div style="flex: 1 1 1px; display: flex; align-items: center; width: 100%;">-->
-      <!--        <div style="flex: 1 1 1px; margin-right: 10px;">-->
-      <!--          Название кафедры:-->
-      <!--        </div>-->
-      <!--        <div style="flex: 1 1 1px">-->
-      <!--          <smart-text-box placeholder=""></smart-text-box>-->
-      <!--        </div>-->
-      <!--      </div>-->
-
     </div>
-
+    <a href="http://localhost:8081/" target="_blank">132131233</a>
 
     <!--    <div style="flex: 1 1 1px; margin-right: 10px;">-->
     <!--      Название каф. (сокр):-->
@@ -119,7 +101,6 @@
 
 <script>
 
-
 import "smart-webcomponents/source/styles/smart.default.css";
 import "smart-webcomponents/source/modules/smart.combobox.js";
 import "smart-webcomponents/source/modules/smart.textbox.js";
@@ -156,8 +137,10 @@ export default {
 <style scoped>
 
 .main {
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 20px);
+  height: calc(100% - 40px);
+  margin: 20px;
+  /*margin: 20px -40px -40px 20px;*/
 }
 
 .menuItem {

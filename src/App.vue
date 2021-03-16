@@ -28,6 +28,7 @@
 import {openDB} from 'idb';
 
 import Menu from "@/components/Menu";
+import Doljnosti from "@/components/Doljnosti";
 import Settings from "@/components/Settings";
 import Preloader from "@/components/Preloader";
 import $ from "jquery";
@@ -37,6 +38,7 @@ export default {
   name: 'App',
   components: {
     Menu,
+    Doljnosti,
     Settings,
     Preloader
   },
@@ -111,6 +113,7 @@ export default {
     }, 1000);
 
 
+    // Рамки при фокусе
     let main = $('.mainComponent');
     // console.info(main);
     main.focus(() => {
@@ -127,9 +130,17 @@ export default {
 
 <style>
 
+@import "../node_modules/ag-grid-community/dist/styles/ag-grid.css";
+@import "../node_modules/ag-grid-community/dist/styles/ag-theme-alpine.css";
+@import "../node_modules/ag-grid-community/dist/styles/ag-theme-alpine-dark.css";
+
+/*@import "~ag-grid-community/src/styles/ag-grid.scss";*/
+/*@import "~ag-grid-community/src/styles/ag-theme-alpine/sass/_ag-theme-alpine-mixin.scss";*/
+
+
+
 .mainComponent {
   display: flex;
-  padding: 20px;
   border: solid 1px #e0e0e0;
   border-radius: 4px;
   outline: none;
@@ -139,6 +150,7 @@ export default {
   border: solid 1px #b2b2b2;
 }
 
+/* Анимация смены правого окна */
 .component-fade-enter-active, .component-fade-leave-active {
   transition: opacity .1s ease;
 }
@@ -149,8 +161,9 @@ export default {
   opacity: 0;
 }
 
+/* Анимация смены прелоадера */
 .fade-enter-active, .fade-leave-active {
-  transition: opacity 2s;
+  transition: opacity 1s;
 }
 
 .fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */
@@ -164,9 +177,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  width: 100%;
-  height: 100%;
-  /*margin-top: 60px;*/
 }
 
 html, body {

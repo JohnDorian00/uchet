@@ -10,7 +10,6 @@
       selected-indexes='[ "8" ]'
   >
 
-
     <smart-tree-item>Плановые цифры нагрузки учебного года</smart-tree-item>
 
     <smart-tree-items-group>
@@ -102,6 +101,7 @@
 
 <script>
 
+
 import "smart-webcomponents/source/modules/smart.tree.js";
 import "smart-webcomponents/source/styles/smart.default.css";
 
@@ -112,7 +112,7 @@ export default {
     return {
       componentsAssoc: {
         'Плановые цифры нагрузки учебного года': 'testComp',
-        'Должности': 'testComp',
+        'Должности': 'Doljnosti',
         'Настройки': 'Settings'
       }
     }
