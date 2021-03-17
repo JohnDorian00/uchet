@@ -138,5 +138,7 @@ export default {
 smart-tree {
   height: 100%;
   width: 300px;
+  font-size: 13px;
+
 }
 </style>

@@ -4,102 +4,57 @@
     <div style="display: flex; flex-direction: column; justify-content: center; align-items: baseline">
 
       <div class="menuItem">
-        <div class="labels">
-          Название института:
-        </div>
-        <div style="flex: 1 1 1px; width: 100%">
-          <smart-combo-box style="width: 100%">
-            <smart-list-item>АБП</smart-list-item>
-            <smart-list-item>АВТ</smart-list-item>
-            <smart-list-item>ИМТК</smart-list-item>
-            <smart-list-item>ИПСС</smart-list-item>
-            <smart-list-item>ИТТСУ</smart-list-item>
-            <smart-list-item>ИУЦТ</smart-list-item>
-            <smart-list-item>ИЭФ</smart-list-item>
-            <smart-list-item>НИИ ТТС</smart-list-item>
-            <smart-list-item>РАПС</smart-list-item>
-            <smart-list-item>РОАТ</smart-list-item>
-            <smart-list-item>ЮИ</smart-list-item>
-          </smart-combo-box>
-        </div>
+        <b-input-group prepend="Название института">
+          <b-form-input list="input-list" id="input-with-list"></b-form-input>
+          <b-form-datalist id="input-list" :options="options"></b-form-datalist>
+        </b-input-group>
       </div>
 
       <div class="menuItem">
-        <div class="labels">
-          Директор института:
-        </div>
-        <div style="flex: 0 0 1px;">
-          <smart-text-box select-all-on-focus></smart-text-box>
-        </div>
+        <b-input-group prepend="Директор института">
+          <b-form-input></b-form-input>
+        </b-input-group>
       </div>
 
+      <div class="menuItem">
+        <b-input-group prepend="Название кафедры">
+          <b-form-input></b-form-input>
+        </b-input-group>
+      </div>
+
+      <div class="menuItem">
+        <b-input-group prepend="Название каф. (сокр)">
+          <b-form-input></b-form-input>
+        </b-input-group>
+      </div>
+
+      <div class="menuItem">
+        <b-input-group prepend="Зав. кафедрой">
+          <b-form-input></b-form-input>
+        </b-input-group>
+      </div>
+
+      <div class="menuItem">
+        <b-input-group prepend="Ставка">
+          <b-form-input></b-form-input>
+        </b-input-group>
+      </div>
 
       <button id="toggle-dark-mode">Toggle Dark Mode</button>
       <button id="reset-to-system">Reset to System Theme</button>
 
     </div>
+
+
     <a href="http://localhost:8081/" target="_blank">132131233</a>
-
-    <!--    <div style="flex: 1 1 1px; margin-right: 10px;">-->
-    <!--      Название каф. (сокр):-->
-    <!--    </div>-->
-    <!--    <div style="flex: 1 1 1px">-->
-    <!--      <smart-text-box placeholder=""></smart-text-box>-->
-    <!--    </div>-->
-
-    <!--    <div style="flex: 1 1 1px; margin-right: 10px;">-->
-    <!--      Зав. кафедрой:-->
-    <!--    </div>-->
-    <!--    <div style="flex: 1 1 1px">-->
-    <!--      <smart-text-box placeholder=""></smart-text-box>-->
-    <!--    </div>-->
-
-    <!--    <div style="flex: 1 1 1px; margin-right: 10px;">-->
-    <!--      Ставка:-->
-    <!--    </div>-->
-    <!--    <div style="flex: 1 1 1px">-->
-    <!--      <smart-text-box placeholder=""></smart-text-box>-->
-    <!--    </div>-->
-
-
-    <!--    <div style="flex: 1 1 1px">-->
-    <!--      <div class="inputText">-->
-    <!--        Название института: <br/>-->
-    <!--      </div>-->
-
-    <!--      Директор института: <br/>-->
-    <!--      Название кафедры: <br/>-->
-    <!--      Название каф. (сокр): <br/>-->
-    <!--      Зав. кафедрой: <br/>-->
-    <!--      Ставка: <br/>-->
-    <!--    </div>-->
-    <!--    <div style="flex: 1 1 1px; display: flex; flex-direction: column; justify-content: left">-->
-    <!--      <smart-combo-box class="input">-->
-    <!--        <smart-list-item>АБП</smart-list-item>-->
-    <!--        <smart-list-item>АВТ</smart-list-item>-->
-    <!--        <smart-list-item>ИМТК</smart-list-item>-->
-    <!--        <smart-list-item>ИПСС</smart-list-item>-->
-    <!--        <smart-list-item>ИТТСУ</smart-list-item>-->
-    <!--        <smart-list-item>ИУЦТ</smart-list-item>-->
-    <!--        <smart-list-item>ИЭФ</smart-list-item>-->
-    <!--        <smart-list-item>НИИ ТТС</smart-list-item>-->
-    <!--        <smart-list-item>РАПС</smart-list-item>-->
-    <!--        <smart-list-item>РОАТ</smart-list-item>-->
-    <!--        <smart-list-item>ЮИ</smart-list-item>-->
-    <!--      </smart-combo-box>-->
-    <!--      <smart-text-box class="input" placeholder=""></smart-text-box>-->
-    <!--      <smart-text-box class="input" placeholder=""></smart-text-box>-->
-    <!--      <smart-text-box class="input" placeholder=""></smart-text-box>-->
-    <!--      <smart-text-box class="input" placeholder=""></smart-text-box>-->
-    <!--      <smart-text-box class="input" placeholder=""></smart-text-box>-->
-    <!--      <smart-text-box class="input" placeholder=""></smart-text-box>-->
-    <!--    </div>-->
-
 
   </div>
 </template>
 
 <script>
+
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import "smart-webcomponents/source/styles/smart.default.css";
 import "smart-webcomponents/source/modules/smart.combobox.js";
@@ -112,6 +67,7 @@ export default {
   data() {
     return {
       mainClass: true,
+      options: ['АБП', 'АВТ', 'ИМТК', 'ИПСС', 'ИТТСУ', 'ИУЦТ', 'ИЭФ', 'НИИ ТТС', 'РАПС', 'РОАТ', 'ЮИ']
     }
   },
   props: {
@@ -136,10 +92,25 @@ export default {
 
 <style scoped>
 
+.input-group>.input-group-prepend {
+  flex: 0 0 150px;
+}
+.input-group .input-group-text {
+  width: 100%;
+}
+
+smart-combo-box{
+  text-align: left;
+}
+
+smart-text-box{
+  text-align: left;
+}
+
 .main {
   width: calc(100% - 20px);
   height: calc(100% - 40px);
-  margin: 20px;
+  margin: 9px;
   /*margin: 20px -40px -40px 20px;*/
 }
 

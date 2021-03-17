@@ -12,9 +12,13 @@
           <Menu @changeComponent="changeComponent"></Menu>
         </div>
 
-        <div id="main" class="mainComponent" tabindex="-1" style="flex: 1 1 1px; margin: 10px;">
+        <div id="main" class="mainComponent" tabindex="-1" style="flex: 1 1 1px; margin: 10px; ">
           <transition name="component-fade" mode="out-in">
-            <component :bus="bus" v-bind:is="currentComponent"></component>
+            <div style="display: flex; flex-direction: column; width: 100%;">
+<!--              <div style="flex: 0 0 35px; margin: auto;">{{}}</div>-->
+              <component style=" flex: 1 1 1px; " :bus="bus" v-bind:is="currentComponent"></component>
+            </div>
+
           </transition>
         </div>
 
@@ -138,7 +142,6 @@ export default {
 /*@import "~ag-grid-community/src/styles/ag-theme-alpine/sass/_ag-theme-alpine-mixin.scss";*/
 
 
-
 .mainComponent {
   display: flex;
   border: solid 1px #e0e0e0;
@@ -184,6 +187,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  font-size: 13px;
 }
 
 </style>

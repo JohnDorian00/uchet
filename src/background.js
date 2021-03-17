@@ -1,7 +1,8 @@
 'use strict'
 
 // import {app, protocol, BrowserWindow, ipcMain, nativeTheme} from 'electron'
-import {app, protocol, BrowserWindow } from 'electron'
+
+import {app, protocol, BrowserWindow} from 'electron'
 import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer'
 
@@ -34,6 +35,7 @@ async function createWindow() {
         // Load the index.html when not in development
         win.loadURL('app://./index.html')
     }
+    
     
     // ipcMain.on('dark-mode:toggle', () => {
     //     if (nativeTheme.shouldUseDarkColors) {
