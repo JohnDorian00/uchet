@@ -1,24 +1,23 @@
 <template>
   <div class="main" style="width: 100%; height: 100%">
 <!--    ag-theme-alpine-dark-->
-    <ag-grid-vue style="width: 100%; height: 100%;"
+    <ag-grid-vue style="width: calc(100% - 10px); height: calc(100% - 10px); margin: 5px;"
                  class="ag-theme-alpine"
                  :id="id"
                  :gridOptions="gridOptions"
-                 @grid-ready="onGridReady"
                  :rowData="rowData"
                  :columnDefs="columnDefs"
                  :pinnedTopRowData="pinnedTopRowData"
                  :pinnedBottomRowData="pinnedBottomRowData"
+                 :suppressDragLeaveHidesColumns="true"
+                 :animateRows="true"
+                 :rowSelection = "'multiple'"
+                 @grid-ready="onGridReady"
     >
     </ag-grid-vue>
   </div>
 </template>
-
 <script>
-
-
-
 
 import { AgGridVue } from "ag-grid-vue";
 
@@ -49,11 +48,16 @@ export default {
   props: {
     bus: Object,
     winName: String,
-    settings: Object
+    settings: Object,
+    columns: Array,
+    data: Array,
+    defColDef: Object
   },
 
   beforeMount() {
-    this.gridOptions = {};
+    this.gridOptions = {
+      suppressHorizontalScroll: true
+    };
 
     this.columnDefs = [
       { field: 'fullName', headerName: 'ФИО', minWidth: 150 }
@@ -67,13 +71,13 @@ export default {
         fullName: 'Абрамов А.В.'
       }
     ];
-
     this.defaultColDef = {
       flex: 1,
       minWidth: 20,
       editable: true,
       resizable: true,
     };
+
 
     this.init();
   },
@@ -98,6 +102,39 @@ export default {
   },
 
   methods: {
+    // Заполнение всего грида
+    setAll(rowData) {
+      this.rowData = rowData;
+    },
+
+    // Вывод всего грида
+    getAll() {
+      let rowsData = [];
+      this.gridApi.forEachNode(function (node) {
+        rowsData.push(node.data);
+      });
+      return rowsData
+    },
+
+    // Добавить строчку
+    addRow(rowArr, index) {
+      let row = {};
+      this.columnDefs.forEach((item, index)=>{
+        row[item.field] = rowArr[index];
+      })
+
+      this.gridOptions.api.applyTransaction({
+        add: [row],
+        addIndex: index,
+      });
+    },
+
+    // Удалить строчку
+    removeRow() {
+      return this.gridApi.applyTransaction({ remove: this.gridApi.getSelectedRows() });
+    },
+
+    // Применение настроек
     init() {
       for (let key in this.settings) {
         if (this[key] !== undefined && this.settings[key] !== undefined) {
@@ -117,7 +154,21 @@ export default {
       });
 
       params.api.sizeColumnsToFit();
-    }
+    },
+
+    // refreshTable() {
+    //   if (this.gridColumnApi.columnController && this.gridColumnApi.columnController.bodyWidthDirty) {
+    //     this.gridApi.sizeColumnsToFit();
+    //     if (this.refreshAttempts) {
+    //       this.refreshAttempts--;
+    //       setTimeout(() => {
+    //         this.refreshTable();
+    //       }, 100);
+    //     }
+    //   } else {
+    //     this.refreshAttempts = 0;
+    //   }
+    // }
   }
 }
 </script>
@@ -133,15 +184,6 @@ export default {
   height: 100%;
 }
 
-.menuItem {
-  margin-bottom: 10px;
-  flex: 0 0 30px;
-  display: flex;
-  justify-content: left;
-  /*align-items: center;*/
-  width: 100%;
-  text-align: end;
-}
 
 .labels {
   flex: 0 0 160px;

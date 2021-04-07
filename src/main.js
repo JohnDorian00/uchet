@@ -1,12 +1,16 @@
 import Vue from 'vue'
+import Notifications from 'vue-notification'
+
 import App from './App.vue'
 import { BootstrapVue, IconsPlugin, InputGroupPlugin  } from 'bootstrap-vue'
 
-// Make BootstrapVue available throughout your project
+// BootstrapVue
 Vue.use(BootstrapVue);
-// Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin);
 Vue.use(InputGroupPlugin);
+
+// Нотификации
+Vue.use(Notifications)
 
 
 Vue.config.productionTip = false

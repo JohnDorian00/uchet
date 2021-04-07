@@ -10,7 +10,7 @@
       selected-indexes='[ "8" ]'
   >
 
-    <smart-tree-item>Плановые цифры нагрузки учебного года</smart-tree-item>
+    <smart-tree-item >Плановые цифры нагрузки учебного года</smart-tree-item>
 
     <smart-tree-items-group>
       План
