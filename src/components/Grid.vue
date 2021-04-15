@@ -119,10 +119,15 @@ export default {
 
     // Добавить строчку
     addRow(rowArr, index) {
-      let row = {};
+      let row = {}, isNull = true;
+
       this.columnDefs.forEach((item, index) => {
         row[item.field] = rowArr[index];
+
+        if (rowArr[index] !== null) isNull = false;
       })
+
+      if (isNull) return
 
       this.gridOptions.api.applyTransaction({
         add: [row],

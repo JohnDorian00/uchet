@@ -18,11 +18,11 @@
     <!--     Нижнее меню-->
     <div class="borderWhite" style="flex: 0 0 1px; display: flex; margin-top: 10px">
       <div style="flex: 1 1 1px">
-        <b-button @click="saveSettings" variant="outline-primary">Сохранить</b-button>
+        <b-button @click="saveSettings" variant="outline-primary" tabindex="3">Сохранить</b-button>
       </div>
 
       <div style="flex: 1 1 1px">
-        <b-button @click="exportExcel" variant="outline-primary">Экспорт в excel</b-button>
+        <b-button @click="exportExcel" variant="outline-primary" tabindex="4">Экспорт в excel</b-button>
       </div>
     </div>
   </div>

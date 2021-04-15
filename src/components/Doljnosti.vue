@@ -24,7 +24,7 @@
           </div>
           <div style="flex: 1 1 1px">
             <b-input-group prepend="Название">
-              <b-form-input v-model="name"></b-form-input>
+              <b-form-input v-model="name" tabindex="1"></b-form-input>
             </b-input-group>
           </div>
         </div>
@@ -37,7 +37,7 @@
           </div>
           <div style="flex: 1 1 1px">
             <b-input-group prepend="Сокращение">
-              <b-form-input v-model="shortName"></b-form-input>
+              <b-form-input v-model="shortName" tabindex="2"></b-form-input>
             </b-input-group>
           </div>
         </div>

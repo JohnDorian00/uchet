@@ -27,6 +27,18 @@
               <b-form-input v-model="name"></b-form-input>
             </b-input-group>
           </div>
+          <div style="flex: 0 0 350px; display: flex;">
+            <div style="flex: 11 1 1px; margin-left: 5px">
+              <b-input-group prepend="Бюджетные">
+                <b-form-input v-model="budget"></b-form-input>
+              </b-input-group>
+            </div>
+            <div style="flex: 12 1 1px; margin-left: 5px">
+              <b-input-group prepend="Внебюджетные">
+                <b-form-input v-model="unbudget"></b-form-input>
+              </b-input-group>
+            </div>
+          </div>
         </div>
 
         <div style="height: 10px"></div>
@@ -36,8 +48,14 @@
             <b-button style="width: 85px" @click="removeRow" variant="outline-primary">Удалить</b-button>
           </div>
           <div style="flex: 1 1 1px">
-            <b-input-group prepend="Сокращение">
-              <b-form-input v-model="shortName"></b-form-input>
+            <b-input-group prepend="Институт">
+              <b-form-input v-model="university"></b-form-input>
+            </b-input-group>
+          </div>
+
+          <div style="flex: 0 0 345px; margin-left: 5px">
+            <b-input-group prepend="Кол-во студентов">
+              <b-form-input v-model="studentAmount"></b-form-input>
             </b-input-group>
           </div>
         </div>
@@ -64,8 +82,8 @@ export default {
 
       gridSettings: {
         columnDefs: [
-          {field: 'name', headerName: 'Название', minWidth: 10},
-          {field: 'university', headerName: 'Институт', minWidth: 10},
+          {field: 'name', headerName: 'Название', minWidth: 10, width: 150},
+          {field: 'university', headerName: 'Институт', minWidth: 10, width: 150},
           {field: 'studentAmount', headerName: 'Кол-во студентов', minWidth: 10},
           {field: 'budget', headerName: 'Бюджетные', minWidth: 10},
           {field: 'unbudget', headerName: 'Внебюджетные', minWidth: 10}
@@ -73,8 +91,12 @@ export default {
         rowData: [],
       },
 
+      // Инпуты
       name: null,
-      shortName: null,
+      university: null,
+      studentAmount: null,
+      budget: null,
+      unbudget: null
     }
   },
 
@@ -98,7 +120,7 @@ export default {
 
     // Добавить строку
     addRow(row, index) {
-      this.$refs.grid.addRow([this.name, this.shortName], index);
+      this.$refs.grid.addRow([this.name, this.university, this.studentAmount, this.budget, this.unbudget], index);
     },
 
     // Удалить строку
