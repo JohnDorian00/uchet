@@ -1,30 +1,31 @@
 <template>
-  <div class="main" style="width: 100%; height: 100%">
-<!--    ag-theme-alpine-dark-->
-    <ag-grid-vue style="width: calc(100% - 10px); height: calc(100% - 10px); margin: 5px;"
-                 class="ag-theme-alpine"
-                 :id="id"
-                 :gridOptions="gridOptions"
-                 :rowData="rowData"
-                 :columnDefs="columnDefs"
-                 :pinnedTopRowData="pinnedTopRowData"
-                 :pinnedBottomRowData="pinnedBottomRowData"
-                 :suppressDragLeaveHidesColumns="true"
-                 :animateRows="true"
-                 :rowSelection = "'multiple'"
-                 @grid-ready="onGridReady"
+  <div style="width: 100%; height: 100%">
+    <!--    ag-theme-alpine-dark-->
+    <!--    style="width: calc(100% - 10px); height: calc(100% - 10px); margin: 5px;"-->
+    <ag-grid-vue
+        style="width: 100%; height: 100%"
+        class="ag-theme-alpine"
+        :id="id"
+        :gridOptions="gridOptions"
+        :rowData="rowData"
+        :columnDefs="columnDefs"
+        :pinnedTopRowData="pinnedTopRowData"
+        :pinnedBottomRowData="pinnedBottomRowData"
+        :suppressDragLeaveHidesColumns="true"
+        :animateRows="true"
+        :rowSelection="'multiple'"
+        @grid-ready="onGridReady"
     >
     </ag-grid-vue>
   </div>
 </template>
 <script>
 
-import { AgGridVue } from "ag-grid-vue";
+import {AgGridVue} from "ag-grid-vue";
 
 import "smart-webcomponents/source/modules/smart.window.js";
 import "smart-webcomponents/source/styles/smart.default.css";
 import "smart-webcomponents/source/modules/smart.grid.js";
-
 
 
 export default {
@@ -60,11 +61,11 @@ export default {
     };
 
     this.columnDefs = [
-      { field: 'fullName', headerName: 'ФИО', minWidth: 150 }
+      {field: 'fullName', headerName: 'ФИО', minWidth: 150}
     ];
-    for (let i=0; i<18; i++) {
-      this.columnDefs.push({ field: 'field'+i, headerName: 'ЛКР' });
-    }
+    // for (let i = 0; i < 18; i++) {
+    //   this.columnDefs.push({field: 'field' + i, headerName: 'ЛКР'});
+    // }
 
     this.rowData = [
       {
@@ -119,7 +120,7 @@ export default {
     // Добавить строчку
     addRow(rowArr, index) {
       let row = {};
-      this.columnDefs.forEach((item, index)=>{
+      this.columnDefs.forEach((item, index) => {
         row[item.field] = rowArr[index];
       })
 
@@ -131,7 +132,7 @@ export default {
 
     // Удалить строчку
     removeRow() {
-      return this.gridApi.applyTransaction({ remove: this.gridApi.getSelectedRows() });
+      return this.gridApi.applyTransaction({remove: this.gridApi.getSelectedRows()});
     },
 
     // Применение настроек
@@ -174,17 +175,7 @@ export default {
 </script>
 
 
-
 <style scoped>
-
-
-
-.main {
-  width: 100%;
-  height: 100%;
-}
-
-
 .labels {
   flex: 0 0 160px;
   margin-right: 20px;

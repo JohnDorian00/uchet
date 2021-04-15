@@ -3,27 +3,25 @@
 
     <transition name="fade">
       <Preloader key="1" v-if="isLoading"></Preloader>
-      <!--    </transition>-->
 
-      <!--    <transition name="fade">-->
       <div key="2" v-else style="display: flex; width: 100%; height: 100%;">
 
         <div style="flex: 0 0 300px; margin: 10px;">
-          <Menu @changeComponent="changeComponent"></Menu>
+          <Menu @changeComponent="changeComponent" :componentsAssoc="componentsAssoc"></Menu>
         </div>
 
         <div id="main" class="mainComponent" tabindex="-1" style="flex: 1 1 1px; margin: 10px; ">
-          <transition name="component-fade" mode="out-in">
-            <div style="display: flex; flex-direction: column; width: 100%;">
-              <component style=" flex: 1 1 1px; " :bus="bus" :busVue="busVue" :settings="settings"
-                         v-bind:is="currentComponent"></component>
-            </div>
-
-          </transition>
+          <div style="display: flex; flex-direction: column; width: 100%;">
+            <MainWindow style=" flex: 1 1 1px; " :bus="bus" :busVue="busVue" :settings="settings"
+                        :currentComponent="currentComponent" :componentsAssoc="componentsAssoc"/>
+          </div>
         </div>
 
       </div>
     </transition>
+
+    <!--        <component style=" flex: 1 1 1px; " :bus="bus" :busVue="busVue" :settings="settings"
+                               v-bind:is="currentComponent"></component> -->
 
     <notifications group="main"/>
   </div>
@@ -34,19 +32,20 @@
 import Vue from 'vue';
 import {openDB} from 'idb';
 
+import MainWindow from "@/components/MainWindow";
+
 import Menu from "@/components/Menu";
-import Doljnosti from "@/components/Doljnosti";
-import Settings from "@/components/Settings";
 import Preloader from "@/components/Preloader";
 import $ from "jquery";
 
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 export default {
   name: 'App',
   components: {
     Menu,
-    Doljnosti,
-    Settings,
+    MainWindow,
     Preloader
   },
   data() {
@@ -55,7 +54,14 @@ export default {
       bus: {},
       busVue: new Vue({}),
       isLoading: true,
-      settings: null
+      settings: null,
+      componentsAssoc: {
+        'testComp': 'Плановые цифры нагрузки учебного года',
+        'Doljnosti': 'Должности',
+        'Settings': 'Настройки',
+        'WorkTypes': 'Виды учебной работы',
+        'StudyStream': 'Учебные потоки'
+      }
     }
   },
   methods: {
@@ -64,6 +70,11 @@ export default {
       if (!this.windowsSettings) {
         this.bus.notify('Не выбрана база данных', 'w');
       } else {
+        // Убираем прослушиватель сохранения
+        if (!(this.currentComponent === componentName)) {
+          this.busVue.$off('saveSettings');
+        }
+
         this.currentComponent = componentName;
         this.settings = this.windowsSettings[this.currentComponent]
       }
@@ -107,7 +118,6 @@ export default {
 
       try {
         this.windowsSettings = await this._readDB('all');
-        console.info(this.windowsSettings);
         this.settings = this.windowsSettings[this.currentComponent];
         return true
       } catch (e) {
@@ -155,6 +165,7 @@ export default {
                 windowName: item.windowName,
                 settings: item.settings
               });
+
             } catch (e) {
               this.bus.notify("Ошибка записи в бд", 'w');
             }
@@ -194,6 +205,7 @@ export default {
 
           return this.formatDataFromDB(data);
         } catch (e) {
+          console.log(e);
           this.bus.notify("Ошибка транзакции бд при чтении", 'w');
           return false
         }
@@ -207,7 +219,7 @@ export default {
 
     // Обновить параметры конкретного окна в дб
     async updateParamsToDB(windowName, settingName, data) {
-      let settings = (await this.getParamsFromDB(windowName))[windowName];
+      let settings = (await this.getParamsFromDB(windowName))[windowName] || {};
 
       if (data) {
         settings[settingName] = data;
@@ -227,6 +239,7 @@ export default {
     formatDataFromDB(array) {
       let out = {};
 
+      if (!array) return {}
       if (!Array.isArray(array)) array = [array];
 
       array.forEach((item) => {
@@ -322,19 +335,22 @@ export default {
 
     setTimeout(() => {
       this.isLoading = false;
+      // Рамки при фокусе
+      setTimeout(() => {
+        let main = $(".mainComponent");
+
+        main.focusin(() => {
+              main.addClass('mainBorder')
+            }
+        );
+
+        main.focusout(() => {
+          main.removeClass('mainBorder')
+        });
+      }, 0);
     }, 1000);
 
 
-    // Рамки при фокусе
-    let main = $('.mainComponent');
-    // console.info(main);
-    main.focus(() => {
-          main.addClass('mainBorder')
-        }
-    );
-    main.blur(() => {
-      main.removeClass('mainBorder')
-    });
   }
 
 }
@@ -362,6 +378,8 @@ export default {
 .borderWhite {
   border: solid 1px #e0e0e0;
   border-radius: 4px;
+  margin: 5px;
+  padding: 5px;
 }
 
 .mainComponent {
@@ -373,17 +391,6 @@ export default {
 
 .mainBorder {
   border: solid 1px #b2b2b2;
-}
-
-/* Анимация смены правого окна */
-.component-fade-enter-active, .component-fade-leave-active {
-  transition: opacity .1s ease;
-}
-
-.component-fade-enter, .component-fade-leave-to
-  /* .component-fade-leave-active до версии 2.1.8 */
-{
-  opacity: 0;
 }
 
 /* Анимация смены прелоадера */

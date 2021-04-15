@@ -10,7 +10,7 @@
       selected-indexes='[ "8" ]'
   >
 
-    <smart-tree-item >Плановые цифры нагрузки учебного года</smart-tree-item>
+    <smart-tree-item>Плановые цифры нагрузки учебного года</smart-tree-item>
 
     <smart-tree-items-group>
       План
@@ -107,20 +107,18 @@ import "smart-webcomponents/source/styles/smart.default.css";
 
 export default {
   name: 'Menu',
-  props: {},
-  data() {
-    return {
-      componentsAssoc: {
-        'Плановые цифры нагрузки учебного года': 'testComp',
-        'Должности': 'Doljnosti',
-        'Настройки': 'Settings'
-      }
-    }
+  props: {
+    componentsAssoc: Object
   },
+  data() {
+    return {}
+  },
+
   methods: {
+    // Смена компонента при выборе в меню
     menuClick(e) {
       let menuItem = e.target.innerText,
-          componentName = this.componentsAssoc[menuItem];
+          componentName = this.components[menuItem];
 
       if (componentName) {
         this.$emit('changeComponent', componentName);
@@ -128,6 +126,11 @@ export default {
     }
   },
   mounted() {
+    // Переворот ассоциативного массива названий компонентов
+    this.components = {};
+    for (let key in this.componentsAssoc) {
+      this.components[this.componentsAssoc[key]] = key;
+    }
   }
 }
 </script>
@@ -137,7 +140,7 @@ export default {
 
 smart-tree {
   height: 100%;
-  width: 300px;
+  width: 314px;
   font-size: 13px;
 
 }

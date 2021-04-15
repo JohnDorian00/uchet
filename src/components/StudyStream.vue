@@ -6,7 +6,7 @@
     <div style="flex: 1 1 1px;">
       <Grid
           ref="grid"
-          :winName="'Doljnosti'"
+          :winName="'StudyStream'"
           :settings="gridSettings"
       ></Grid>
     </div>
@@ -56,7 +56,7 @@ export default {
     Grid
   },
 
-  name: "Doljnosti",
+  name: "StudyStream",
 
   data() {
     return {
@@ -64,14 +64,17 @@ export default {
 
       gridSettings: {
         columnDefs: [
-          {field: 'fullName', headerName: 'Название', minWidth: 10},
-          {field: 'name', headerName: 'Сокращение', minWidth: 10}
+          {field: 'name', headerName: 'Название', minWidth: 10},
+          {field: 'university', headerName: 'Институт', minWidth: 10},
+          {field: 'studentAmount', headerName: 'Кол-во студентов', minWidth: 10},
+          {field: 'budget', headerName: 'Бюджетные', minWidth: 10},
+          {field: 'unbudget', headerName: 'Внебюджетные', minWidth: 10}
         ],
         rowData: [],
       },
 
       name: null,
-      shortName: null
+      shortName: null,
     }
   },
 

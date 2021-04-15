@@ -6,7 +6,7 @@
     <div style="flex: 1 1 1px;">
       <Grid
           ref="grid"
-          :winName="'Doljnosti'"
+          :winName="'WorkTypes'"
           :settings="gridSettings"
       ></Grid>
     </div>
@@ -56,7 +56,7 @@ export default {
     Grid
   },
 
-  name: "Doljnosti",
+  name: "WorkTypes",
 
   data() {
     return {
@@ -71,7 +71,7 @@ export default {
       },
 
       name: null,
-      shortName: null
+      shortName: null,
     }
   },
 

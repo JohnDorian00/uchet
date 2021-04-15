@@ -1,6 +1,11 @@
 <template>
-  <div class="main" style="display: flex; flex-direction: column;">
-    <div style="flex: 10 1 1px;">
+  <div style="display: flex; flex-direction: column;">
+
+    <!--  Настройка названий  -->
+    <div class="borderWhite" style="flex: 0 0 1px; margin: 0">
+      <div class="borderWhite" style="margin: 0 0 5px">
+        Настройка названий
+      </div>
       <div style="display: flex; flex-direction: column; justify-content: center; align-items: baseline;">
 
         <div class="menuItem">
@@ -34,46 +39,48 @@
           </b-input-group>
         </div>
 
-        <div class="menuItem">
+        <div class="menuItem" style="margin-bottom: 0">
           <b-input-group prepend="Ставка">
             <b-form-input v-model="stavka"></b-form-input>
           </b-input-group>
         </div>
 
 
-        <button id="toggle-dark-mode">Toggle Dark Mode</button>
-        <button id="reset-to-system">Reset to System Theme</button>
+        <!--        <button id="toggle-dark-mode">Toggle Dark Mode</button>-->
+        <!--        <button id="reset-to-system">Reset to System Theme</button>-->
 
       </div>
     </div>
-    <div class="borderWhite" style="flex: 0 0 45px; margin: 5px 5px 5px; display: flex; flex-direction: column">
 
-      <div style="display: flex; margin: auto">
-        <div style="flex: 1 1 1px">
-          <b-button @click="save" variant="outline-primary">Сохранить</b-button>
-        </div>
+    <!--  Выбор сохранения  -->
+    <div class="borderWhite" style="flex: 1 1 1px; margin: 10px 0 0; display: flex; flex-direction: column">
+      <div class="borderWhite" style="margin: 0 0 5px;">
+        Выбор сохранения
+      </div>
+      <div style="flex: 1 1 1px;">
+        <Grid
+            ref="grid"
+            :winName="'Settings'"
+            :settings="gridSettings"
+        ></Grid>
       </div>
 
     </div>
-
-    <!--    <a href="http://localhost:8081/" target="_blank">132131233</a>-->
 
   </div>
 </template>
 
 <script>
-
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-
-import "smart-webcomponents/source/styles/smart.default.css";
-import "smart-webcomponents/source/modules/smart.combobox.js";
-import "smart-webcomponents/source/modules/smart.textbox.js";
+import Grid from "@/components/Grid";
 
 // const {ipcRenderer} = require('electron');
 
 export default {
   name: "Settings",
+  components: {
+    Grid
+  },
+
   data() {
     return {
       mainClass: true,
@@ -87,8 +94,21 @@ export default {
       shortNameOfKafedra: "",
       stavka: "",
       zavedKafedroy: "",
+
+      gridSettings: {
+        columnDefs: [
+          {field: 'name', headerName: 'Название', minWidth: 10},
+          {field: 'date', headerName: 'Дата', minWidth: 10}
+        ],
+        rowData: [
+          {
+            name: 'save1testfull', date: '01.02.2020'
+          }
+        ],
+      },
     }
   },
+
   props: {
     bus: Object,
     busVue: Object,
@@ -96,12 +116,8 @@ export default {
   },
 
   mounted() {
-    console.info(this.settings);
-    console.info(this.settings.labels);
-
-
+    this.busVue.$on('saveSettings', this.save);
     this.updateLabels();
-
 
     // Black theme
 
@@ -115,7 +131,6 @@ export default {
     //   document.getElementById('theme-source').innerHTML = 'System'
     // })
   },
-
 
   methods: {
     // Сохранить данные
@@ -160,17 +175,6 @@ smart-combo-box {
 smart-text-box {
   text-align: left;
 }
-
-.main {
-  width: calc(100% - 10px);
-  height: calc(100% - 10px);
-  margin: 5px;
-  /*width: calc(100% - 20px);*/
-  /*height: calc(100% - 40px);*/
-  /*margin: 9px;*/
-  /*margin: 20px -40px -40px 20px;*/
-}
-
 
 .labels {
   flex: 0 0 160px;

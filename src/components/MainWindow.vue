@@ -1,0 +1,100 @@
+<template>
+  <div style="width: 100%; height: 100%; display: flex; flex-direction: column">
+
+    <!--     Label menu item-->
+    <div class="borderWhite" style="flex: 0 0 20px;">
+      {{ componentsAssoc[currentComponent] }}
+    </div>
+
+    <!--     Основной компонент-->
+    <div style="flex: 1 1 1px;">
+      <transition name="component-fade" mode="out-in">
+        <component style="height: 100%; margin: 0 5px 0" :bus="bus" :busVue="busVue"
+                   :settings="settings"
+                   v-bind:is="currentComponent" :componentsAssoc="componentsAssoc"/>
+      </transition>
+    </div>
+
+    <!--     Нижнее меню-->
+    <div class="borderWhite" style="flex: 0 0 1px; display: flex; margin-top: 10px">
+      <div style="flex: 1 1 1px">
+        <b-button @click="saveSettings" variant="outline-primary">Сохранить</b-button>
+      </div>
+
+      <div style="flex: 1 1 1px">
+        <b-button @click="exportExcel" variant="outline-primary">Экспорт в excel</b-button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+
+import Doljnosti from "@/components/Doljnosti";
+import Settings from "@/components/Settings";
+import WorkTypes from "@/components/WorkTypes";
+import StudyStream from "@/components/StudyStream";
+
+import $ from "jquery";
+
+export default {
+  name: "MainWindow",
+  components: {
+    Settings,
+    Doljnosti,
+    WorkTypes,
+    StudyStream
+  },
+  data() {
+    return {
+      blurConfig: {
+        isBlurred: false,
+        opacity: 0.3,
+        filter: 'blur(6px)',
+        transition: 'all .9s linear'
+      }
+    }
+  },
+  props: {
+    bus: Object,
+    busVue: Object,
+    settings: Object,
+    currentComponent: String,
+    componentsAssoc: Object
+  },
+  methods: {
+    saveSettings() {
+      this.busVue.$emit('saveSettings');
+    },
+    exportExcel() {
+
+    },
+    blur(state) {
+      this.blurConfig.isBlurred = state;
+    }
+  },
+  mounted() {
+    // обработка ctrl+s
+    $(window).keypress(() => {
+      if (!(event.which === 115 && event.ctrlKey) && !(event.which === 19)) return true;
+      this.saveSettings();
+      event.preventDefault();
+      return false;
+    });
+    // this.busVue.$on('blur', this.blur);
+  }
+}
+</script>
+
+<style scoped>
+/* Анимация смены правого окна */
+.component-fade-enter-active, .component-fade-leave-active {
+  transition: opacity 0.08s ease;
+}
+
+.component-fade-enter, .component-fade-leave-to
+  /* .component-fade-leave-active до версии 2.1.8 */
+{
+  opacity: 0;
+}
+</style>
