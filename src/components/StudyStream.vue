@@ -119,7 +119,7 @@ export default {
     },
 
     // Добавить строку
-    addRow(row, index) {
+    addRow(index) {
       this.$refs.grid.addRow([this.name, this.university, this.studentAmount, this.budget, this.unbudget], index);
     },
 

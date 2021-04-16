@@ -89,12 +89,13 @@ export default {
 
   methods: {
     // Сохранить данные
-    save() {
-      this.busVue.$emit('updateParamsToDB', this.windowName, 'grid', this.$refs.grid.getAll());
+    async save() {
+      let gridRows = this.$refs.grid.getAll();
+      await this.bus.dbFunc.setSave({[this.windowName]: {grid: gridRows}});
     },
 
     // Добавить строку
-    addRow(row, index) {
+    addRow(index) {
       this.$refs.grid.addRow([this.name, this.shortName], index);
     },
 
@@ -105,8 +106,8 @@ export default {
 
     // Обновить параметры грида
     updateSettings() {
-      if (this.settings && this.settings.grid) {
-        this.$refs.grid.setAll(this.settings.grid);
+      if (this.settings && this.settings[this.windowName] && this.settings[this.windowName].grid) {
+        this.$refs.grid.setAll(this.settings[this.windowName].grid);
       }
     }
   }

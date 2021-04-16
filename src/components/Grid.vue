@@ -13,7 +13,7 @@
         :pinnedBottomRowData="pinnedBottomRowData"
         :suppressDragLeaveHidesColumns="true"
         :animateRows="true"
-        :rowSelection="'multiple'"
+        :rowSelection="rowSelection || 'multiple'"
         @grid-ready="onGridReady"
     >
     </ag-grid-vue>
@@ -52,12 +52,14 @@ export default {
     settings: Object,
     columns: Array,
     data: Array,
-    defColDef: Object
+    defColDef: Object,
+    rowSelection: String
   },
 
   beforeMount() {
     this.gridOptions = {
-      suppressHorizontalScroll: true
+      suppressHorizontalScroll: true,
+      suppressCellSelection: true
     };
 
     this.columnDefs = [
@@ -115,6 +117,13 @@ export default {
         rowsData.push(node.data);
       });
       return rowsData
+    },
+
+    // Вернуть выбранные строки
+    getSelected() {
+      let selectedNodes = this.gridApi.getSelectedNodes();
+      let selectedData = selectedNodes.map(node => node.data);
+      return selectedData;
     },
 
     // Добавить строчку

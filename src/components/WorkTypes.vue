@@ -94,7 +94,7 @@ export default {
     },
 
     // Добавить строку
-    addRow(row, index) {
+    addRow(index) {
       this.$refs.grid.addRow([this.name, this.shortName], index);
     },
 

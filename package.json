@@ -1,7 +1,10 @@
 {
   "name": "uchet",
-  "version": "0.1.0",
+  "author": "Musyl Nikita",
+  "description": "uchet",
+  "version": "0.0.0",
   "private": true,
+  "repository": "https://github.com/JohnDorian00/uchet",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",

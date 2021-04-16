@@ -78,10 +78,11 @@ app.on('ready', async () => {
             console.error('Vue Devtools failed to install:', e.toString())
         }
     }
-    createWindow()
+    // мб удалить await
+    await createWindow();
 })
 
-app.on('new-window', function(event, url){
+app.on('new-window', function (event, url) {
     event.preventDefault();
     open(url);
 });
@@ -100,3 +101,20 @@ if (isDevelopment) {
         })
     }
 }
+
+
+//    "forge": {
+//       "packagerConfig": {},
+//       "publishers": [
+//         {
+//           "name": "@electron-forge/publisher-github",
+//           "config": {
+//             "repository": {
+//               "owner": "JohnDorian00",
+//               "name": "uchet"
+//             },
+//             "authToken": "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"
+//           }
+//         }
+//       ]
+//     }
