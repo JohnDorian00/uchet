@@ -93,7 +93,7 @@ export default {
         group: 'main',
         title: title,
         text: text,
-        ignoreDuplicates: true,
+        // ignoreDuplicates: true,
         type: type
       });
     }
@@ -122,7 +122,6 @@ export default {
 
 
     if (saveId) {
-      console.info(saveId);
       if (await this.updateBusSettings(saveId)) {
         this.bus.notify("Активировано сохранение " + this.bus.save.name, 's');
       }

@@ -110,12 +110,19 @@ export default {
     // Обновление данных
     this.updateSettings();
     this.busVue.$on('saveSettings', this.save);
+    this.busVue.$on('delRow', this.removeRow);
+  },
+
+  beforeDestroy() {
+    this.busVue.$off('saveSettings');
+    this.busVue.$off('delRow');
   },
 
   methods: {
     // Сохранить данные
-    save() {
-      this.busVue.$emit('updateParamsToDB', this.windowName, 'grid', this.$refs.grid.getAll());
+    async save() {
+      let gridRows = this.$refs.grid.getAll();
+      await this.bus.dbFunc.setSave({[this.windowName]: {grid: gridRows}});
     },
 
     // Добавить строку
@@ -130,8 +137,8 @@ export default {
 
     // Обновить параметры грида
     updateSettings() {
-      if (this.settings && this.settings.grid) {
-        this.$refs.grid.setAll(this.settings.grid);
+      if (this.settings && this.settings[this.windowName] && this.settings[this.windowName].grid) {
+        this.$refs.grid.setAll(this.settings[this.windowName].grid);
       }
     }
   }

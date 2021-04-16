@@ -85,6 +85,12 @@ export default {
     // Обновление данных
     this.updateSettings();
     this.busVue.$on('saveSettings', this.save);
+    this.busVue.$on('delRow', this.removeRow);
+  },
+
+  beforeDestroy() {
+    this.busVue.$off('saveSettings');
+    this.busVue.$off('delRow');
   },
 
   methods: {

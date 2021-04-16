@@ -26,6 +26,7 @@ import {AgGridVue} from "ag-grid-vue";
 import "smart-webcomponents/source/modules/smart.window.js";
 import "smart-webcomponents/source/styles/smart.default.css";
 import "smart-webcomponents/source/modules/smart.grid.js";
+import $ from "jquery";
 
 
 export default {
@@ -104,6 +105,10 @@ export default {
     this.gridColumnApi = this.gridOptions.columnApi;
   },
 
+  beforeDestroy() {
+    $(window).off('resize');
+  },
+
   methods: {
     // Заполнение всего грида
     setAll(rowData) {
@@ -146,7 +151,10 @@ export default {
 
     // Удалить строчку
     removeRow() {
-      return this.gridApi.applyTransaction({remove: this.gridApi.getSelectedRows()});
+      let selectedRows = this.gridApi.getSelectedRows();
+      if (selectedRows) {
+        return this.gridApi.applyTransaction({remove: selectedRows});
+      }
     },
 
     // Применение настроек
@@ -161,13 +169,11 @@ export default {
     // Авторесайз
     onGridReady(params) {
       params.api.sizeColumnsToFit();
-
-      window.addEventListener('resize', function () {
+      $(window).on('resize', () => {
         setTimeout(function () {
           params.api.sizeColumnsToFit();
         });
-      });
-
+      })
       params.api.sizeColumnsToFit();
     },
 

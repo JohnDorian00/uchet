@@ -74,14 +74,29 @@ export default {
     }
   },
   mounted() {
-    // обработка ctrl+s
-    $(window).keypress(() => {
-      if (!(event.which === 115 && event.ctrlKey) && !(event.which === 19)) return true;
-      this.saveSettings();
-      event.preventDefault();
-      return false;
+    let ctrlDown = false,
+        ctrlKey = 17,
+        cmdKey = 91,
+        sKey = 83,
+        delKey = 46;
+
+    // Слушатель ctrl
+    $(window).keydown((e) => {
+      if (e.keyCode == ctrlKey || e.keyCode == cmdKey) ctrlDown = true;
+    }).keyup(function (e) {
+      if (e.keyCode == ctrlKey || e.keyCode == cmdKey) ctrlDown = false;
     });
-    // this.busVue.$on('blur', this.blur);
+
+    // Слушатель del и ctrl+s
+    $(window).keydown((e) => {
+      // console.info(e.keyCode);
+      if (ctrlDown && (e.keyCode == sKey)) {
+        this.saveSettings();
+      }
+      if (e.keyCode == delKey) {
+        this.busVue.$emit('delRow');
+      }
+    });
   }
 }
 </script>
