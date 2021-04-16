@@ -7,14 +7,14 @@
   "repository": "https://github.com/JohnDorian00/uchet",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "dist:win32": "electron-builder --win --ia32",
     "electron:build": "vue-cli-service electron:build --ia32",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
-  "main": "background.js",
+  "main": "./src/background.js",
   "dependencies": {
     "ag-grid-community": "^25.1.0",
     "ag-grid-vue": "^25.1.0",
@@ -61,5 +61,19 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "build": {
+    "productName": "uchet",
+    "win": {
+      "target": [
+        "portable"
+      ]
+    },
+    "portable": {
+      "artifactName": "uchet.exe"
+    },
+    "directories": {
+      "output": "build"
+    }
+  }
 }
