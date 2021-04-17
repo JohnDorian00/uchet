@@ -28,7 +28,6 @@
 </template>
 
 <script>
-
 import Vue from 'vue';
 import {openDB} from 'idb';
 
@@ -40,6 +39,22 @@ import $ from "jquery";
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
+
+// import sqlite3 from "sqlite3";
+// import open from 'sqlite';
+
+// this is a top-level await
+// (async () => {
+//   // open the database
+//   await open({
+//     filename: '/tmp/database.db',
+//     driver: sqlite3.Database
+//   }).then((db2) => {
+//     console.info(db2);
+//     console.info('base is open');
+//     // do your thing
+//   })
+// })()
 
 export default {
   name: 'App',
@@ -146,6 +161,27 @@ export default {
         });
       }, 0);
     }, 1000);
+
+    console.info(1);
+    var sqlite3 = require('sqlite3').verbose();
+    console.info(2);
+    var db2 = new sqlite3.Database(':memory:');
+
+    db2.serialize(function () {
+      db2.run("CREATE TABLE lorem (info TEXT)");
+
+      var stmt = db2.prepare("INSERT INTO lorem VALUES (?)");
+      for (var i = 0; i < 10; i++) {
+        stmt.run("Ipsum from front" + i);
+      }
+      stmt.finalize();
+
+      db2.each("SELECT rowid AS id, info FROM lorem", function (err, row) {
+        console.log(row.id + ": " + row.info);
+      });
+    });
+
+    db2.close();
   },
 
   methods: {
@@ -347,7 +383,6 @@ export default {
 
 /*@import "~ag-grid-community/src/styles/ag-grid.scss";*/
 /*@import "~ag-grid-community/src/styles/ag-theme-alpine/sass/_ag-theme-alpine-mixin.scss";*/
-
 .menuItem {
   margin-bottom: 10px;
   flex: 0 0 30px;

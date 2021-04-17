@@ -23,3 +23,19 @@ Vue.config.productionTip = false
 new Vue({
     render: h => h(App),
 }).$mount('#app')
+
+
+// "build": {
+//     "productName": "uchet",
+//         "win": {
+//         "target": [
+//             "portable"
+//         ]
+//     },
+//     "portable": {
+//         "artifactName": "uchet.exe"
+//     },
+//     "directories": {
+//         "output": "build"
+//     }
+// }
