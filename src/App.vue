@@ -7,7 +7,7 @@
       <div key="2" v-else style="display: flex; width: 100%; height: 100%;">
 
         <div style="flex: 0 0 300px; margin: 10px;">
-          <Menu @changeComponent="changeComponent" :componentsAssoc="componentsAssoc"></Menu>
+          <Menu ref="menu" @changeComponent="changeComponent" :componentsAssoc="componentsAssoc"></Menu>
         </div>
 
         <div id="main" class="mainComponent" tabindex="-1" style="flex: 1 1 1px; margin: 10px; ">
@@ -29,7 +29,7 @@
 
 <script>
 import Vue from 'vue';
-import {openDB} from 'idb';
+// import {openDB} from 'idb';
 
 import MainWindow from "@/components/MainWindow";
 
@@ -40,21 +40,7 @@ import $ from "jquery";
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
-// import sqlite3 from "sqlite3";
-// import open from 'sqlite';
-
-// this is a top-level await
-// (async () => {
-//   // open the database
-//   await open({
-//     filename: '/tmp/database.db',
-//     driver: sqlite3.Database
-//   }).then((db2) => {
-//     console.info(db2);
-//     console.info('base is open');
-//     // do your thing
-//   })
-// })()
+// import * as db from "../src/components/db.js";
 
 export default {
   name: 'App',
@@ -71,11 +57,10 @@ export default {
       isLoading: true,
       settings: null,
       componentsAssoc: {
-        'testComp': 'Плановые цифры нагрузки учебного года',
         'Doljnosti': 'Должности',
         'Settings': 'Настройки',
-        'WorkTypes': 'Виды учебной работы',
-        'StudyStream': 'Учебные потоки'
+        // 'WorkTypes': 'Виды учебной работы',
+        // 'StudyStream': 'Учебные потоки'
       }
     }
   },
@@ -115,34 +100,9 @@ export default {
 ////////////////////////////////////////////////////////////////////////////
 
     // todo берем имя бд из локал сторедж
-    let saveId = localStorage.getItem('save');
-
-    let db = await this._OpenDB();
-
-
-    // Проверка ошибки открытия database
-    if (!db) {
-      this.bus.notify('Ошибка открытия базы данных,\n перезапустите программу', 'e');
-      return
-    } else {
-      // Указание перечня функций работы с дб
-      this.bus.db = db;
-      this.bus.dbFunc = {
-        getSave: this._getSave,
-        setSave: this._setSave,
-        addSave: this._addSave,
-        updateBusSettings: this.updateBusSettings
-      }
-    }
-
-
-    if (saveId) {
-      if (await this.updateBusSettings(saveId)) {
-        this.bus.notify("Активировано сохранение " + this.bus.save.name, 's');
-      }
-    } else {
-      this.bus.notify("Не выбрано сохранение", 'w');
-    }
+    // путь к сохоанению
+    // let dbPath = path.resolve(__dirname, 'data.db')
+    // let saveId = localStorage.getItem('save');
 
 
     setTimeout(() => {
@@ -162,34 +122,50 @@ export default {
       }, 0);
     }, 1000);
 
-    console.info(1);
-    var sqlite3 = require('sqlite3').verbose();
-    console.info(2);
-    var db2 = new sqlite3.Database(':memory:');
+    // старая бд
+    // let db = await this._OpenDB();
+    // // Проверка ошибки открытия database
+    // if (!db) {
+    //   this.bus.notify('Ошибка открытия базы данных,\n перезапустите программу', 'e');
+    //   return
+    // } else {
+    //   // Указание перечня функций работы с дб
+    //   this.bus.db = db;
+    //   this.bus.dbFunc = {
+    //     getSave: this._getSave,
+    //     setSave: this._setSave,
+    //     addSave: this._addSave,
+    //     updateBusSettings: this.updateBusSettings
+    //   }
+    // }
+    // if (saveId) {
+    //   if (await this.updateBusSettings(saveId)) {
+    //     this.bus.notify("Активировано сохранение " + this.bus.save.name, 's');
+    //   }
+    // } else {
+    //   this.bus.notify("Не выбрано сохранение", 'w');
+    // }
 
-    db2.serialize(function () {
-      db2.run("CREATE TABLE lorem (info TEXT)");
-
-      var stmt = db2.prepare("INSERT INTO lorem VALUES (?)");
-      for (var i = 0; i < 10; i++) {
-        stmt.run("Ipsum from front" + i);
-      }
-      stmt.finalize();
-
-      db2.each("SELECT rowid AS id, info FROM lorem", function (err, row) {
-        console.log(row.id + ": " + row.info);
-      });
-    });
-
-    db2.close();
+    // err = await db.get('lorem');
+    // console.info(err);
+    // err = await db.initDefaultDateBase();
+    // if (err) console.info(err);
+    // err = await db.addRows('Jobs', [
+    //   {Name: 'job1', Note: 'note'},
+    //   {Name: 'job2', Note: 'note2'}
+    // ]);
+    // if (err) console.info(err);
+    // err = await db.addRows('Jobs', {id: 2, Name: '12321312321', Note: 'no12312312321te'});
+    // if (err) console.info(err);
   },
 
   methods: {
+
+
     // Смена компонента (окна)
     changeComponent(componentName) {
-      let saveId = localStorage.getItem('save');
-
-      if (!saveId || !this.bus.save) {
+      if (!localStorage.getItem('path')) {
+        this.$refs.menu.select(8);
         this.bus.notify('Не выбрано сохранение', 'w');
       } else {
         // Убираем прослушиватель сохранения
@@ -228,148 +204,132 @@ export default {
       }
     },
 
-    // Создание бд
-    async _OpenDB() {
-      let t = this;
-      // Инициализация базы данных
-      let db = await openDB('base', 1, {
-        blocked() {
-          console.info('blocked');
-        },
-        upgrade(db) {
-          // Проверка создания дб
-          if (!db.objectStoreNames.contains('uchet')) {
-            t.bus.notify('Создана новая база данных');
-            db.createObjectStore('uchet', {keyPath: 'id', autoIncrement: true});
-          }
-        },
-        blocking() {
-          console.info('blocking');
-        },
-        terminated() {
-          console.info('terminated');
-        },
-      })
 
-
-      return db
-    },
-
-    // Запись/изменение в бд (по окнам)
-    async _setSave(windows, id) {
-      // windowName, settingsName, data
-      if (!this.bus.db) {
-        this.bus.notify("База данных не инициализирована", 'e');
-        return false
-      } else {
-        let db = this.bus.db;
-
-        try {
-          if (!id) id = localStorage.getItem('save');
-
-          let save = await this._getSave(id);
-
-
-          if (save) {
-            if (!windows) windows = {};
-            for (let key in windows) {
-              save.settings[key] = windows[key];
-            }
-
-            const tx = db.transaction('uchet', 'readwrite');
-            const store = tx.objectStore('uchet');
-
-            await store.put(save);
-            await tx.done;
-            await this.updateBusSettings();
-
-            this.bus.notify("Данные сохранены", 's');
-
-            return true
-          } else {
-            this.bus.notify("Ошибка записи в бд: не выбрано сохранение", 'w');
-            return false
-          }
-        } catch (e) {
-          console.log(e);
-          this.bus.notify("Ошибка транзакции бд при записи", 'w');
-          return false
-        }
-      }
-    },
-
-    // Чтение из бд по айди сохранения
-    async _getSave(id) {
-      // windowName, settingsName, data
-      if (!this.bus.db) {
-        this.bus.notify("База данных не инициализирована", 'e');
-        return false
-      } else {
-        let db = this.bus.db,
-            data;
-
-        try {
-          const tx = db.transaction('uchet', 'readonly');
-          const store = tx.objectStore('uchet');
-
-          if (id && id === 'all') {
-            data = await store.getAll();
-          } else if (id) {
-            id = parseInt(id);
-            data = await store.get(id);
-          }
-          await tx.done;
-
-          if (!data) {
-            this.bus.notify("Сохранение не найдено", 'w');
-          }
-
-          return data;
-        } catch (e) {
-          console.log(e);
-          this.bus.notify("Ошибка чтения из базы данных\n", 'w');
-          return false
-        }
-      }
-    },
-
-    // Добавить сохранение
-    async _addSave(saveName, data) {
-      if (!this.bus.db) {
-        this.bus.notify("База данных не инициализирована", 'e');
-        return false
-      } else {
-        let db = this.bus.db;
-
-        try {
-          const tx = db.transaction('uchet', 'readwrite');
-          const store = tx.objectStore('uchet');
-          if (!data) data = {};
-          const result = await store.put({name: saveName, date: new Date().toLocaleDateString(), settings: data})
-          await tx.done;
-
-          return result
-        } catch (e) {
-          console.log(e);
-          this.bus.notify("Ошибка записи в базу данных\n", 'w');
-          return false
-        }
-      }
-    },
-
-    // Ассоциативный массив из обычного
-    formatDataFromDB(array) {
-      let out = {};
-
-      if (!array) return {}
-      if (!Array.isArray(array)) array = [array];
-
-      array.forEach((item) => {
-        out[item.windowName] = item.settings;
-      })
-
-      return out
-    }
+    // // Создание бд
+    // async _OpenDB() {
+    //   let t = this;
+    //   // Инициализация базы данных
+    //   let db = await openDB('base', 1, {
+    //     blocked() {
+    //       console.info('blocked');
+    //     },
+    //     upgrade(db) {
+    //       // Проверка создания дб
+    //       if (!db.objectStoreNames.contains('uchet')) {
+    //         t.bus.notify('Создана новая база данных');
+    //         db.createObjectStore('uchet', {keyPath: 'id', autoIncrement: true});
+    //       }
+    //     },
+    //     blocking() {
+    //       console.info('blocking');
+    //     },
+    //     terminated() {
+    //       console.info('terminated');
+    //     },
+    //   })
+    //
+    //
+    //   return db
+    // },
+    // // Запись/изменение в бд (по окнам)
+    // async _setSave(windows, id) {
+    //   // windowName, settingsName, data
+    //   if (!this.bus.db) {
+    //     this.bus.notify("База данных не инициализирована", 'e');
+    //     return false
+    //   } else {
+    //     let db = this.bus.db;
+    //
+    //     try {
+    //       if (!id) id = localStorage.getItem('save');
+    //
+    //       let save = await this._getSave(id);
+    //
+    //
+    //       if (save) {
+    //         if (!windows) windows = {};
+    //         for (let key in windows) {
+    //           save.settings[key] = windows[key];
+    //         }
+    //
+    //         const tx = db.transaction('uchet', 'readwrite');
+    //         const store = tx.objectStore('uchet');
+    //
+    //         await store.put(save);
+    //         await tx.done;
+    //         await this.updateBusSettings();
+    //
+    //         this.bus.notify("Данные сохранены", 's');
+    //
+    //         return true
+    //       } else {
+    //         this.bus.notify("Ошибка записи в бд: не выбрано сохранение", 'w');
+    //         return false
+    //       }
+    //     } catch (e) {
+    //       console.log(e);
+    //       this.bus.notify("Ошибка транзакции бд при записи", 'w');
+    //       return false
+    //     }
+    //   }
+    // },
+    // // Чтение из бд по айди сохранения
+    // async _getSave(id) {
+    //   // windowName, settingsName, data
+    //   if (!this.bus.db) {
+    //     this.bus.notify("База данных не инициализирована", 'e');
+    //     return false
+    //   } else {
+    //     let db = this.bus.db,
+    //         data;
+    //
+    //     try {
+    //       const tx = db.transaction('uchet', 'readonly');
+    //       const store = tx.objectStore('uchet');
+    //
+    //       if (id && id === 'all') {
+    //         data = await store.getAll();
+    //       } else if (id) {
+    //         id = parseInt(id);
+    //         data = await store.get(id);
+    //       }
+    //       await tx.done;
+    //
+    //       if (!data) {
+    //         this.bus.notify("Сохранение не найдено", 'w');
+    //       }
+    //
+    //       return data;
+    //     } catch (e) {
+    //       console.log(e);
+    //       this.bus.notify("Ошибка чтения из базы данных\n", 'w');
+    //       return false
+    //     }
+    //   }
+    // },
+    // // Добавить сохранение
+    // async _addSave(saveName, data) {
+    //   if (!this.bus.db) {
+    //     this.bus.notify("База данных не инициализирована", 'e');
+    //     return false
+    //   } else {
+    //     let db = this.bus.db;
+    //
+    //     try {
+    //       const tx = db.transaction('uchet', 'readwrite');
+    //       const store = tx.objectStore('uchet');
+    //       if (!data) data = {};
+    //       const result = await store.put({name: saveName, date: new Date().toLocaleDateString(), settings: data})
+    //       await tx.done;
+    //
+    //       return result
+    //     } catch (e) {
+    //       console.log(e);
+    //       this.bus.notify("Ошибка записи в базу данных\n", 'w');
+    //       return false
+    //     }
+    //   }
+    // },
   }
 
 }

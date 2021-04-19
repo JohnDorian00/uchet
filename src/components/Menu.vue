@@ -1,5 +1,6 @@
 <template>
   <smart-tree
+      ref="menu"
       id="menu"
       class="animation"
       filterable
@@ -10,9 +11,9 @@
       selected-indexes='[ "8" ]'
   >
 
-    <smart-tree-item>Плановые цифры нагрузки учебного года</smart-tree-item>
+    <smart-tree-item disabled>Плановые цифры нагрузки учебного года</smart-tree-item>
 
-    <smart-tree-items-group>
+    <smart-tree-items-group disabled>
       План
       <smart-tree-items-group>
         Индивидуальный учебный план
@@ -38,7 +39,7 @@
     </smart-tree-items-group>
 
 
-    <smart-tree-items-group>
+    <smart-tree-items-group disabled>
       Учёт
       <smart-tree-items-group>
         Учёт выполнения нагрузки института
@@ -83,10 +84,10 @@
       </smart-tree-items-group>
     </smart-tree-items-group>
 
-    <smart-tree-item>Преподаватели</smart-tree-item>
-    <smart-tree-item>Дисциплины</smart-tree-item>
-    <smart-tree-item>Учебные потоки</smart-tree-item>
-    <smart-tree-item>Виды учебной работы</smart-tree-item>
+    <smart-tree-item disabled>Преподаватели</smart-tree-item>
+    <smart-tree-item disabled>Дисциплины</smart-tree-item>
+    <smart-tree-item disabled>Учебные потоки</smart-tree-item>
+    <smart-tree-item disabled>Виды учебной работы</smart-tree-item>
     <smart-tree-item>Должности</smart-tree-item>
     <smart-tree-item>Настройки</smart-tree-item>
 
@@ -123,6 +124,9 @@ export default {
       if (componentName) {
         this.$emit('changeComponent', componentName);
       }
+    },
+    select(id) {
+      this.$refs.menu.select(id + '');
     }
   },
   mounted() {

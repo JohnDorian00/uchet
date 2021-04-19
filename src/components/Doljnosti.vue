@@ -50,6 +50,10 @@
 
 <script>
 import Grid from "@/components/Grid";
+import * as db from "./db.js";
+
+const tableName = "TeachersJobs",
+    gridId = tableName + "ID";
 
 export default {
   components: {
@@ -61,17 +65,21 @@ export default {
   data() {
     return {
       windowName: this.$options._componentTag,
-
       gridSettings: {
         columnDefs: [
-          {field: 'fullName', headerName: 'Название', minWidth: 10},
-          {field: 'name', headerName: 'Сокращение', minWidth: 10}
+          {
+            headerName: tableName + "ID",
+            field: tableName + "ID",
+            hide: true
+          },
+          {field: 'Name', headerName: 'Название', minWidth: 10},
+          {field: 'Note', headerName: 'Сокращение', minWidth: 10}
         ],
         rowData: [],
       },
 
-      name: null,
-      shortName: null
+      name: "",
+      shortName: ""
     }
   },
 
@@ -83,7 +91,7 @@ export default {
 
   mounted() {
     // Обновление данных
-    this.updateSettings();
+    this.updateGrid();
     this.busVue.$on('saveSettings', this.save);
     this.busVue.$on('delRow', this.removeRow);
   },
@@ -101,20 +109,64 @@ export default {
     },
 
     // Добавить строку
-    addRow(index) {
-      this.$refs.grid.addRow([this.name, this.shortName], index);
+    async addRow() {
+      let fields = this.gridSettings.columnDefs,
+          fieldsStr = "";
+
+      console.info(fields);
+
+      fields.forEach((item) => {
+        let field = item.field;
+        if (field.toLowerCase().indexOf('id') === -1) {
+          fieldsStr += field + ', ';
+        }
+      })
+      fieldsStr = fieldsStr.slice(0, -2);
+
+      let err = await db.run("INSERT OR REPLACE INTO " + tableName + "(" + fieldsStr + ") VALUES(" + "'" + this.name + "','" + this.shortName + "');")
+      if (err) {
+        console.error(err)
+        this.bus.notify('Ошибка добавления записи', 'e');
+      } else {
+        this.updateGrid();
+        this.bus.notify('Данные добавлены', 's');
+      }
     },
+
 
     // Удалить строку
     removeRow() {
-      this.$refs.grid.removeRow();
+      let rows = this.$refs.grid.getSelected(),
+          stmt = db.getDB().prepare("DELETE FROM " + tableName + " WHERE " + gridId + " = (?)"),
+          promises = [];
+
+      rows.forEach((item) => {
+        promises.push(new Promise((resolve) => {
+          stmt.run(item[gridId], (err) => {
+            console.warn(err);
+            resolve(err);
+          });
+        }));
+      })
+      Promise.all(promises).then((err) => {
+        if (err) console.warn(err)
+        stmt.finalize();
+        this.updateGrid();
+      })
+
+
     },
 
     // Обновить параметры грида
-    updateSettings() {
-      if (this.settings && this.settings[this.windowName] && this.settings[this.windowName].grid) {
-        this.$refs.grid.setAll(this.settings[this.windowName].grid);
+    async updateGrid() {
+      let data = await db.getTable(tableName);
+      if (data && data.data) {
+        data = data.data
+      } else {
+        console.error(data)
+        this.bus.notify('Ошибка обновления данных', 'e');
       }
+      this.$refs.grid.setAll(data);
     }
   }
 }

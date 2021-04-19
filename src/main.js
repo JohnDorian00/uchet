@@ -5,7 +5,6 @@ import vBlur from 'v-blur'
 import App from './App.vue'
 import {BootstrapVue, IconsPlugin, InputGroupPlugin} from 'bootstrap-vue'
 
-
 // BootstrapVue
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
@@ -21,7 +20,7 @@ Vue.config.productionTip = false
 
 
 new Vue({
-    render: h => h(App),
+    render: h => h(App)
 }).$mount('#app')
 
 

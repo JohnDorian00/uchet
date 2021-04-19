@@ -2,55 +2,39 @@
   <div style="display: flex; flex-direction: column;">
 
     <!--  Выбор сохранения  -->
-    <div class="borderWhite" style="flex: 1 1 1px; margin: 5px 0 0; display: flex; flex-direction: column">
+    <div class="borderWhite" style="flex: 0 0 1px; margin: 5px 0 0; display: flex; flex-direction: column">
       <div class="borderWhite" style="margin: 0 0 5px;">
         Выбор сохранения
       </div>
-      <div style="flex: 1 1 1px;">
-        <Grid
-            ref="grid"
-            :winName="'Settings'"
-            :settings="gridSettings"
-            :rowSelection="'single'"
-        ></Grid>
+      <div style="flex: 0 0 1px;">
+        <b-form-file
+            :key="saveFile.path"
+            id="saveForm"
+            style="margin-bottom: 5px"
+            :state="Boolean(saveFile.path)"
+            accept=".db"
+            :placeholder="placeholder"
+            drop-placeholder="Перетащите сюда..."
+            :file-name-formatter="formatNames"
+            @input="saveChange"
+            v-model="inpFileObj"
+        ></b-form-file>
+        <div v-if="saveFile && saveFile.name" style="margin-bottom: 5px">Выбрано сохранение: {{
+            saveFile.name
+          }}
+        </div>
+        <div v-else style="margin-bottom: 5px">Сохранение не выбрано</div>
       </div>
 
       <!--    Кнопки и инпуты -->
-      <div class="borderWhite" style=" display: flex; margin: 0; flex-direction: column; border-top: none">
-        <div class="menuItem marginInput" style="display: flex; flex-direction: column; margin: 0">
+      <div class="borderWhite" style=" display: flex; margin: 0; flex-direction: column;">
+        <div class="menuItem marginInput" style="display: flex; flex-direction: row; margin: 0">
 
-          <div style="flex: 1 1 1px">
-            <b-input-group prepend="Название">
-              <b-form-input v-model="saveName" tabindex="1"></b-form-input>
-            </b-input-group>
-          </div>
-
-          <div style="display: flex; flex-direction: row; margin-top: 5px; justify-content: space-around">
-
-            <div style="display: flex; flex-direction: row">
-              <div style="flex: 0 0 auto; margin-right: 5px">
-                <b-button style="width: 85px" @click="addSave" variant="outline-primary">Добавить</b-button>
-              </div>
-              <div style="flex: 0 0 auto; margin-right: 5px">
-                <b-button style="width: 85px" @click="deleteSave" variant="outline-primary">Удалить</b-button>
-              </div>
-            </div>
-
-
-            <div style="flex: 0 0 auto; margin-right: 5px">
-              <b-button style="width: 85px" @click="chooseSave" variant="outline-primary">Выбрать</b-button>
-            </div>
-
-            <div style="display: flex; flex-direction: row">
-              <div style="flex: 0 0 auto; margin-right: 5px">
-                <b-button disabled style="width: 85px" variant="outline-primary">Экспорт</b-button>
-              </div>
-              <div style="flex: 0 0 auto; margin-right: 5px">
-                <b-button disabled style="width: 85px" variant="outline-primary">Импорт</b-button>
-              </div>
-            </div>
-
-
+          <b-input-group prepend="Название">
+            <b-form-input v-model="newSaveName" tabindex="1"></b-form-input>
+          </b-input-group>
+          <div style="margin: 0 5px 0">
+            <b-button style="width: 85px" @click="addSave" variant="outline-primary">Добавить</b-button>
           </div>
 
 
@@ -59,7 +43,7 @@
     </div>
 
     <!--  Настройка названий  -->
-    <div class="borderWhite" style="flex: 0 0 1px; margin: 10px 0 0">
+    <div class="borderWhite" style="flex: 1 1 1px; margin: 10px 0 0">
       <div class="borderWhite" style="margin: 0 0 5px">
         Настройка названий
       </div>
@@ -113,14 +97,17 @@
 </template>
 
 <script>
-import Grid from "@/components/Grid";
-
-// const {ipcRenderer} = require('electron');
+// import Grid from "@/components/Grid";
+import * as db from "./db.js";
 
 export default {
   name: "Settings",
-  components: {
-    Grid
+  components: {},
+
+  watch: {
+    inpFileObj(newData) {
+      return newData;
+    }
   },
 
   data() {
@@ -136,7 +123,14 @@ export default {
       shortNameOfKafedra: "",
       stavka: "",
       zavedKafedroy: "",
-      saveName: "",
+      newSaveName: "",
+
+      saveFile: {},
+      inpFileObj: null,
+
+      placeholder: 'Укажите файл или перетащите его сюда...',
+
+      // saveName: "",
 
       gridSettings: {
         columnDefs: [
@@ -159,10 +153,19 @@ export default {
     settings: Object
   },
 
-  mounted() {
+  async mounted() {
+    this.getLocalSave();
+
+    // Если нет коннекта или путь в коннекте != пути в локалсторедж
+    if (!db.isConnected() || localStorage.getItem('path') !== db.getPath()) {
+      // Connect к бд по пути из локал сторедж
+      let err = await db.connect();
+      if (err) console.log(err);
+    }
+
+    await this.updateLabels();
     this.busVue.$on('saveSettings', this.save);
-    this.updateLabels();
-    this.refreshGrid();
+
 
     // Black theme
 
@@ -177,94 +180,237 @@ export default {
     // })
   },
 
+  beforeDestroy() {
+    this.busVue.$off('saveSettings');
+  },
+
   methods: {
-    // Добавить новое сохранение
-    async addSave() {
-      let newSaveId = parseInt(await this.bus.dbFunc.addSave(this.saveName));
-      if (newSaveId) {
-        // Обновить грид
-        await this.refreshGrid();
-        this.bus.notify("Сохранение " + this.saveName + " добавлено", 's');
-
-        await this.chooseSave(await this.bus.dbFunc.getSave(newSaveId));
-      }
-    },
-
-    // Удалить сохранение
-    async deleteSave() {
-      let row;
-      try {
-        row = this.$refs.grid.getSelected()[0];
-        if (row && row.id) {
-          const tx = this.bus.db.transaction('uchet', 'readwrite');
-          const store = tx.objectStore('uchet');
-          await store.delete(row.id);
-
-          // Если удаляемое сохранение = указанному по дефолту - удалить дефолт сейв
-          if (row.id === parseInt(localStorage.getItem('save'))) {
-            localStorage.removeItem('save');
-            await this.bus.dbFunc.updateBusSettings();
-            this.updateLabels();
-          }
-
-          await this.refreshGrid();
-          this.bus.notify("Сохранение " + row.name + " удалено", 's');
-        }
-      } catch (e) {
-        console.log(e);
-        this.bus.notify("Не удалось удалить сохранение " + row.name, 'e');
-      }
-    },
-
-    async chooseSave(row) {
-      try {
-        if (!row || (row && !row.id)) row = this.$refs.grid.getSelected()[0];
-        if (row && row.id) {
-          localStorage.setItem('save', row.id);
-          await this.bus.dbFunc.updateBusSettings(row.id);
-          this.updateLabels();
-          this.bus.notify("Активировано сохранение " + this.bus.save.name, 's');
-        }
-      } catch (e) {
-        console.log(e);
-        this.bus.notify("Не удалось выбрать сохранение " + row.name, 'e');
-      }
-    },
-
-    // Обновить таблицу сохранений (берется из бд)
-    async refreshGrid() {
-      this.$refs.grid.setAll(await this.bus.dbFunc.getSave('all'));
-    },
-
     // Сохранить данные
-    save() {
-      let labels = {
-        directorOfInstitut: this.directorOfInstitut,
-        nameOfInstitut: this.nameOfInstitut,
-        nameOfKafedra: this.nameOfKafedra,
-        shortNameOfKafedra: this.shortNameOfKafedra,
-        stavka: this.stavka,
-        zavedKafedroy: this.zavedKafedroy
+    async save() {
+      let err = await db.run("INSERT OR REPLACE INTO Settings(SettingsID,directorOfInstitut,nameOfInstitut,nameOfKafedra,shortNameOfKafedra,stavka,zavedKafedroy) VALUES(0," + "'" + this.directorOfInstitut + "','" + this.nameOfInstitut + "','" + this.nameOfKafedra + "','" + this.shortNameOfKafedra + "','" + this.stavka + "','" + this.zavedKafedroy + "');")
+      if (err) {
+        console.error(err)
+        this.bus.notify('Ошибка сохранения', 'e')
+      } else {
+        this.bus.notify('Данные сохранены', 's')
       }
+    },
 
-      this.bus.dbFunc.setSave({[this.windowName]: {labels: labels}});
+    // Проверка сохранения из локалсторедж
+    getLocalSave() {
+      // Проверка сохранения в локалсторедж
+      let path = localStorage.getItem('path'),
+          name = localStorage.getItem('name');
+
+      if (name && path) {
+        this.saveFile.path = path;
+        this.saveFile.name = name;
+        this.placeholder = path;
+      } else {
+        this.saveFile = {};
+        this.placeholder = 'Укажите файл или перетащите его сюда...';
+      }
     },
 
     // Применение параметров к инпутам
-    updateLabels() {
-      if (this.settings && this.settings[this.windowName] && this.settings[this.windowName].labels) {
-        for (let item in this.settings[this.windowName].labels) {
-          this[item] = this.settings[this.windowName].labels[item];
-        }
+    async updateLabels() {
+      let data = await db.getTable('Settings');
+
+      if (data && data.data) {
+        data = data.data
       } else {
+        console.warn(data);
+        return
+        // this.bus.notify("Ошибка получения данных для окна", 'w');
+      }
+
+      if (!data || !data[0]) {
         this.directorOfInstitut = "";
         this.nameOfInstitut = "";
         this.nameOfKafedra = "";
         this.shortNameOfKafedra = "";
         this.stavka = "";
         this.zavedKafedroy = "";
+      } else {
+        data = data[0];
+        delete data.SettingsID;
+
+        let keys = Object.keys(data);
+
+        keys.forEach((key) => {
+          this[key] = data[key];
+        })
+      }
+
+    },
+
+    // Новое сохранение
+    async addSave() {
+      if (!this.newSaveName) {
+        this.bus.notify("Укажите имя файла", 'w');
+      } else {
+        this.newSaveName += '.db';
+        let path = process.cwd() + "\\" + this.newSaveName,
+            name = this.newSaveName;
+
+        await db.close();
+        let err = await db.createAndConnect(path);
+
+        if (err) {
+          console.error(err);
+          return this.bus.notify("Ошибка создания бд", 'e')
+        }
+
+        localStorage.setItem('name', name);
+        localStorage.setItem('path', path);
+        this.saveFile.name = name;
+        this.saveFile.path = path;
+        this.placeholder = this.saveFile.path;
+        this.newSaveName = "";
+        this.directorOfInstitut = "";
+        this.nameOfInstitut = "";
+        this.nameOfKafedra = "";
+        this.shortNameOfKafedra = "";
+        this.stavka = "";
+        this.zavedKafedroy = "";
+
+        await db.initDefaultDateBase();
+      }
+    },
+
+    // Дейсвтие при изменении файла с бд
+    async saveChange(newFile) {
+      if (!newFile) return;
+
+      if (Array.isArray(newFile) && newFile[0]) {
+        newFile = newFile[0];
+      } else if (!newFile) {
+        return
+      }
+
+      if (newFile && newFile.name && newFile.name.slice(-2) !== 'db') {
+        this.$nextTick(() => {
+          localStorage.removeItem('name');
+          localStorage.removeItem('path');
+          this.saveFile = null;
+          this.bus.notify("Расширение файла не .db", 'w');
+        })
+      } else {
+        if (newFile.name && newFile.path) {
+          let path = newFile.path,
+              name = newFile.name;
+
+          localStorage.setItem('name', name);
+          localStorage.setItem('path', path);
+          this.saveFile.name = name;
+          this.saveFile.path = path;
+          this.placeholder = this.saveFile.path;
+          await db.close();
+          await db.connect(this.saveFile.path);
+          await this.updateLabels();
+        }
+      }
+    },
+
+    // Вывод пути файла в инпут
+    formatNames(file) {
+      if (Array.isArray(file) && file[0]) file = file[0];
+
+      if (file && file.path) {
+        return file.path
+      } else {
+        return ""
       }
     }
+
+
+    // // Добавить новое сохранение
+    // async addSave() {
+    //   let newSaveId = parseInt(await this.bus.dbFunc.addSave(this.saveName));
+    //   if (newSaveId) {
+    //     // Обновить грид
+    //     await this.refreshGrid();
+    //     this.bus.notify("Сохранение " + this.saveName + " добавлено", 's');
+    //
+    //     await this.chooseSave(await this.bus.dbFunc.getSave(newSaveId));
+    //   }
+    // },
+    //
+    // // Удалить сохранение
+    // async deleteSave() {
+    //   let row;
+    //   try {
+    //     row = this.$refs.grid.getSelected()[0];
+    //     if (row && row.id) {
+    //       const tx = this.bus.db.transaction('uchet', 'readwrite');
+    //       const store = tx.objectStore('uchet');
+    //       await store.delete(row.id);
+    //
+    //       // Если удаляемое сохранение = указанному по дефолту - удалить дефолт сейв
+    //       if (row.id === parseInt(localStorage.getItem('save'))) {
+    //         localStorage.removeItem('save');
+    //         await this.bus.dbFunc.updateBusSettings();
+    //         this.updateLabels();
+    //       }
+    //
+    //       await this.refreshGrid();
+    //       this.bus.notify("Сохранение " + row.name + " удалено", 's');
+    //     }
+    //   } catch (e) {
+    //     console.log(e);
+    //     this.bus.notify("Не удалось удалить сохранение " + row.name, 'e');
+    //   }
+    // },
+    //
+    // async chooseSave(row) {
+    //   try {
+    //     if (!row || (row && !row.id)) row = this.$refs.grid.getSelected()[0];
+    //     if (row && row.id) {
+    //       localStorage.setItem('save', row.id);
+    //       await this.bus.dbFunc.updateBusSettings(row.id);
+    //       this.updateLabels();
+    //       this.bus.notify("Активировано сохранение " + this.bus.save.name, 's');
+    //     }
+    //   } catch (e) {
+    //     console.log(e);
+    //     this.bus.notify("Не удалось выбрать сохранение " + row.name, 'e');
+    //   }
+    // },
+    //
+    // // Обновить таблицу сохранений (берется из бд)
+    // async refreshGrid() {
+    //   this.$refs.grid.setAll(await this.bus.dbFunc.getSave('all'));
+    // },
+    //
+    // // Сохранить данные
+    // save() {
+    //   let labels = {
+    //     directorOfInstitut: this.directorOfInstitut,
+    //     nameOfInstitut: this.nameOfInstitut,
+    //     nameOfKafedra: this.nameOfKafedra,
+    //     shortNameOfKafedra: this.shortNameOfKafedra,
+    //     stavka: this.stavka,
+    //     zavedKafedroy: this.zavedKafedroy
+    //   }
+    //
+    //   this.bus.dbFunc.setSave({[this.windowName]: {labels: labels}});
+    // },
+    //
+    // // Применение параметров к инпутам
+    // updateLabels() {
+    //   if (this.settings && this.settings[this.windowName] && this.settings[this.windowName].labels) {
+    //     for (let item in this.settings[this.windowName].labels) {
+    //       this[item] = this.settings[this.windowName].labels[item];
+    //     }
+    //   } else {
+    //     this.directorOfInstitut = "";
+    //     this.nameOfInstitut = "";
+    //     this.nameOfKafedra = "";
+    //     this.shortNameOfKafedra = "";
+    //     this.stavka = "";
+    //     this.zavedKafedroy = "";
+    //   }
+    // }
   }
 }
 </script>

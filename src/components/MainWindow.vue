@@ -17,12 +17,12 @@
 
     <!--     Нижнее меню-->
     <div class="borderWhite" style="flex: 0 0 1px; display: flex; margin-top: 10px">
-      <div style="flex: 1 1 1px">
+      <div v-show="currentComponent === 'Settings'" style="flex: 1 1 1px">
         <b-button @click="saveSettings" variant="outline-primary" tabindex="3">Сохранить</b-button>
       </div>
 
       <div style="flex: 1 1 1px">
-        <b-button @click="exportExcel" variant="outline-primary" tabindex="4">Экспорт в excel</b-button>
+        <b-button disabled @click="exportExcel" variant="outline-primary" tabindex="4">Экспорт в excel</b-button>
       </div>
     </div>
   </div>
@@ -104,7 +104,7 @@ export default {
 <style scoped>
 /* Анимация смены правого окна */
 .component-fade-enter-active, .component-fade-leave-active {
-  transition: opacity 0.08s ease;
+  transition: opacity 0.02s ease;
 }
 
 .component-fade-enter, .component-fade-leave-to
