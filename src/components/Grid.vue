@@ -14,6 +14,7 @@
         :suppressDragLeaveHidesColumns="true"
         :animateRows="true"
         :rowSelection="rowSelection || 'multiple'"
+        :overlayNoRowsTemplate="overlayNoRowsTemplate"
         @grid-ready="onGridReady"
     >
     </ag-grid-vue>
@@ -44,7 +45,9 @@ export default {
       columnDefs: null,
       defaultColDef: null,
       pinnedTopRowData: null,
-      pinnedBottomRowData: null
+      pinnedBottomRowData: null,
+
+      overlayNoRowsTemplate: "<div>Нет данных</div>"
     }
   },
   props: {

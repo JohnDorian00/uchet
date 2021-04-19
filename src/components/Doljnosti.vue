@@ -78,6 +78,7 @@ export default {
         rowData: [],
       },
 
+      // inputs
       name: "",
       shortName: ""
     }
@@ -92,12 +93,10 @@ export default {
   mounted() {
     // Обновление данных
     this.updateGrid();
-    // this.busVue.$on('saveSettings', this.save);
     this.busVue.$on('delRow', this.removeRow);
   },
 
   beforeDestroy() {
-    this.busVue.$off('saveSettings');
     this.busVue.$off('delRow');
   },
 
@@ -113,8 +112,6 @@ export default {
       let fields = this.gridSettings.columnDefs,
           fieldsStr = "";
 
-      console.info(fields);
-
       fields.forEach((item) => {
         let field = item.field;
         if (field.toLowerCase().indexOf('id') === -1) {
@@ -123,7 +120,7 @@ export default {
       })
       fieldsStr = fieldsStr.slice(0, -2);
 
-      let err = await db.run("INSERT OR REPLACE INTO " + tableName + "(" + fieldsStr + ") VALUES(" + "'" + this.name + "','" + this.shortName + "');")
+      let err = await db.run("INSERT INTO " + tableName + "(" + fieldsStr + ") VALUES(" + "'" + this.name + "','" + this.shortName + "');")
       if (err) {
         console.error(err)
         this.bus.notify('Ошибка добавления записи', 'e');
@@ -153,8 +150,6 @@ export default {
         stmt.finalize();
         this.updateGrid();
       })
-
-
     },
 
     // Обновить параметры грида

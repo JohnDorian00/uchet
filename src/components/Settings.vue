@@ -9,6 +9,7 @@
       <div style="flex: 0 0 1px;">
         <b-form-file
             :key="saveFile.path"
+            :browse-text="'Открыть'"
             id="saveForm"
             style="margin-bottom: 5px"
             :state="Boolean(saveFile.path)"
@@ -34,10 +35,8 @@
             <b-form-input v-model="newSaveName" tabindex="1"></b-form-input>
           </b-input-group>
           <div style="margin: 0 5px 0">
-            <b-button style="width: 85px" @click="addSave" variant="outline-primary">Добавить</b-button>
+            <b-button style="width: 150px" @click="addSave" variant="outline-primary">Создать сохранение</b-button>
           </div>
-
-
         </div>
       </div>
     </div>
@@ -127,10 +126,8 @@ export default {
 
       saveFile: {},
       inpFileObj: null,
-
       placeholder: 'Укажите файл или перетащите его сюда...',
 
-      // saveName: "",
 
       gridSettings: {
         columnDefs: [
@@ -143,7 +140,7 @@ export default {
           {field: 'date', headerName: 'Дата сохранения', minWidth: 10}
         ],
         rowData: [],
-      },
+      }
     }
   },
 

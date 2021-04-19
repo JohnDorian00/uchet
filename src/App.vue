@@ -59,8 +59,8 @@ export default {
       componentsAssoc: {
         'Doljnosti': 'Должности',
         'Settings': 'Настройки',
-        // 'WorkTypes': 'Виды учебной работы',
-        // 'StudyStream': 'Учебные потоки'
+        'WorkTypes': 'Виды учебной работы',
+        'StudyStream': 'Учебные потоки'
       }
     }
   },
@@ -343,6 +343,7 @@ export default {
 
 /*@import "~ag-grid-community/src/styles/ag-grid.scss";*/
 /*@import "~ag-grid-community/src/styles/ag-theme-alpine/sass/_ag-theme-alpine-mixin.scss";*/
+
 .menuItem {
   margin-bottom: 10px;
   flex: 0 0 30px;

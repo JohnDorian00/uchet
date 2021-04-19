@@ -86,17 +86,11 @@
 
     <smart-tree-item disabled>Преподаватели</smart-tree-item>
     <smart-tree-item disabled>Дисциплины</smart-tree-item>
-    <smart-tree-item disabled>Учебные потоки</smart-tree-item>
-    <smart-tree-item disabled>Виды учебной работы</smart-tree-item>
+    <smart-tree-item>Учебные потоки</smart-tree-item>
+    <smart-tree-item>Виды учебной работы</smart-tree-item>
     <smart-tree-item>Должности</smart-tree-item>
     <smart-tree-item>Настройки</smart-tree-item>
 
-    <!--        <smart-tree-items-group>-->
-    <!--          Products-->
-    <!--          <smart-tree-item>PC products</smart-tree-item>-->
-    <!--          <smart-tree-item>Mobile products</smart-tree-item>-->
-    <!--          <smart-tree-item>All products</smart-tree-item>-->
-    <!--        </smart-tree-items-group>-->
   </smart-tree>
 </template>
 
