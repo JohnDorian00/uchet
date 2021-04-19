@@ -2,7 +2,7 @@
 
 // import {app, protocol, BrowserWindow, ipcMain, nativeTheme} from 'electron'
 
-import {app, protocol, BrowserWindow} from 'electron'
+import {app, protocol, BrowserWindow, ipcMain} from 'electron'
 import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer'
 
@@ -94,6 +94,10 @@ if (!gotTheLock) {
                 console.error('Vue Devtools failed to install:', e.toString())
             }
         }
+        
+        ipcMain.on('get-real-path', (event) => {
+            event.returnValue = JSON.stringify(process.env);
+        })
         // мб удалить await
         createWindow();
     })

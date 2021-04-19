@@ -92,7 +92,7 @@ export default {
   mounted() {
     // Обновление данных
     this.updateGrid();
-    this.busVue.$on('saveSettings', this.save);
+    // this.busVue.$on('saveSettings', this.save);
     this.busVue.$on('delRow', this.removeRow);
   },
 

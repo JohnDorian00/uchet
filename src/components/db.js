@@ -52,31 +52,33 @@ async function createAndConnect(path) {
     if (db) {
         await close();
     }
-    console.info(path);
     return new Promise((resolve) => {
         if (typeof path !== 'string' && !path) return resolve('Указан нетекстовый путь к файлу')
         
         db = new sqlite3.Database(path, (err) => {
             if (err) {
-                console.log(err)
-                close();
+                console.log(err);
+                db = null;
+                resolve("Не удалось создать/подключиться к бд");
             } else {
                 let pathArr = path.split("\\");
                 if (pathArr.length === 1) {
-                    path = process.cwd() + "\\" + path;
+                    const {ipcRenderer} = require('electron');
+                    let env = JSON.parse(ipcRenderer.sendSync('get-real-path'));
+                    let absloutePath = env.PORTABLE_EXECUTABLE_DIR || env.INIT_CWD;
+                    path = absloutePath + "\\" + path;
                 }
                 localStorage.setItem('path', path);
                 localStorage.setItem('name', pathArr[pathArr.length - 1]);
                 console.log('connect to db');
-                console.info(db);
+                return resolve(err);
             }
-            return resolve(err);
         });
         // db.configure("busyTimeout", 0);
     })
 }
 
-// Подключение к бд по пути
+// Подключение к бд
 async function connect(path) {
     let localSavePath = localStorage.getItem('path');
     if (db) {
@@ -88,20 +90,23 @@ async function connect(path) {
         //  sqlite3.OPEN_READWRITE
         db = new sqlite3.Database(path, sqlite3.OPEN_READWRITE, (err) => {
             if (err) {
-                console.log(err)
                 localStorage.removeItem('path');
                 localStorage.removeItem('name');
-                close();
+                db = null;
+                return resolve("Не удалось подключиться к бд");
             } else {
                 let pathArr = path.split("\\");
                 if (pathArr.length === 1) {
-                    path = process.cwd() + "\\" + path;
+                    const {ipcRenderer} = require('electron');
+                    let env = JSON.parse(ipcRenderer.sendSync('get-real-path'));
+                    let absloutePath = env.PORTABLE_EXECUTABLE_DIR || env.INIT_CWD;
+                    path = absloutePath + "\\" + path;
                 }
                 localStorage.setItem('path', path);
                 localStorage.setItem('name', pathArr[pathArr.length - 1]);
                 console.log('connect to db');
+                return resolve(err);
             }
-            return resolve(err);
         });
         // db.configure("busyTimeout", 0);
     })
@@ -112,6 +117,7 @@ function close() {
     return new Promise((resolve) => {
         if (db) {
             db.close((err) => {
+                console.log(err);
                 db = null;
                 localStorage.removeItem('path');
                 localStorage.removeItem('name');
@@ -148,7 +154,7 @@ function addRows(tableName, rows) {
         if (!db) {
             return resolve(defErr + "нет подключения к базе данных");
         }
-        console.info(db);
+        
         if (!tableName || typeof tableName !== 'string') {
             return resolve(defErr + "не указана таблица в бд");
         }
@@ -166,19 +172,18 @@ function addRows(tableName, rows) {
         
         // Обновить строку если есть айди
         if (cols.indexOf('id') !== -1) {
-            let tmpCols = "", tmpVals = "(";
+            let tmpVals = "(";
+            // tmpCols = "",
             cols.forEach((item) => {
                 if (typeof item === 'string' && (item.toLowerCase()).indexOf('id')) {
-                    tmpCols += item + " = ?, ";
+                    // tmpCols += item + " = ?, ";
                     tmpVals += '?, ';
                 }
             })
-            console.info(tmpCols);
             cols.pop();
-            console.info(cols);
             // cols = tmpCols.slice(0, -2);
             tmpVals = tmpVals.slice(0, -2) + ")";
-            tmpCols = undefined;
+            // tmpCols = undefined;
             sql = "UPDATE " + tableName + " SET " + cols.toString() + " WHERE " + tableName + "ID" + " = ?;"
             sql = "INSERT OR REPLACE INTO " + tableName + "(" + cols + ")" + " VALUES " + tmpVals;
         } else {
@@ -206,9 +211,8 @@ function addRows(tableName, rows) {
             
             
             promises.push(new Promise((resolve2) => {
-                console.info(values);
                 stmt.run(values, (err) => {
-                    console.info(err);
+                    console.log(err);
                     return resolve2(err);
                 });
             }));

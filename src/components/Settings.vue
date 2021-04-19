@@ -156,16 +156,32 @@ export default {
   async mounted() {
     this.getLocalSave();
 
+    console.info(db.isConnected());
+    console.info(localStorage.getItem('path'));
+
     // Если нет коннекта или путь в коннекте != пути в локалсторедж
-    if (!db.isConnected() || localStorage.getItem('path') !== db.getPath()) {
+    if ((!db.isConnected() && localStorage.getItem('path')) || (db.isConnected() && (localStorage.getItem('path') && localStorage.getItem('path') !== db.getPath()))) {
       // Connect к бд по пути из локал сторедж
-      let err = await db.connect();
-      if (err) console.log(err);
+      let locName = localStorage.getItem('name'),
+          err = await db.connect();
+
+      console.info(err);
+      if (err) {
+        let text = locName ? "База данных " + locName + " не найдена" : "База данных не найдена";
+        this.bus.notify(text, 'w');
+        this.saveFile = {};
+        this.placeholder = 'Укажите файл или перетащите его сюда...';
+        console.log(err);
+      }
     }
+
+    // if (!db.isConnected()) {
+    //   this.saveFile = {};
+    //   this.placeholder = 'Укажите файл или перетащите его сюда...';
+    // }
 
     await this.updateLabels();
     this.busVue.$on('saveSettings', this.save);
-
 
     // Black theme
 
@@ -250,7 +266,12 @@ export default {
         this.bus.notify("Укажите имя файла", 'w');
       } else {
         this.newSaveName += '.db';
-        let path = process.cwd() + "\\" + this.newSaveName,
+
+        const {ipcRenderer} = require('electron');
+        let env = JSON.parse(ipcRenderer.sendSync('get-real-path'));
+        let absloutePath = env.PORTABLE_EXECUTABLE_DIR || env.INIT_CWD;
+
+        let path = absloutePath + "\\" + this.newSaveName,
             name = this.newSaveName;
 
         await db.close();
