@@ -52,7 +52,7 @@
 import Grid from "@/components/Grid";
 import * as db from "./db";
 
-const tableName = "Jobs",
+const tableName = "Disciplines",
     gridId = tableName + "ID";
 
 export default {
@@ -60,7 +60,7 @@ export default {
     Grid
   },
 
-  name: "WorkTypes",
+  name: "Disciplines",
 
   data() {
     return {

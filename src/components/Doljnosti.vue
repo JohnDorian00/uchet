@@ -90,7 +90,7 @@ export default {
     settings: Object
   },
 
-  mounted() {
+  async mounted() {
     // Обновление данных
     this.updateGrid();
     this.busVue.$on('delRow', this.removeRow);
@@ -125,7 +125,9 @@ export default {
         console.error(err)
         this.bus.notify('Ошибка добавления записи', 'e');
       } else {
-        this.updateGrid();
+        await this.updateGrid();
+        this.name = "";
+        this.shortName = "";
         this.bus.notify('Данные добавлены', 's');
       }
     },
@@ -160,6 +162,7 @@ export default {
       } else {
         console.error(data)
         this.bus.notify('Ошибка обновления данных', 'e');
+        return
       }
       this.$refs.grid.setAll(data);
     }

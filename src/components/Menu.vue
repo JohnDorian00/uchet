@@ -84,8 +84,8 @@
       </smart-tree-items-group>
     </smart-tree-items-group>
 
-    <smart-tree-item disabled>Преподаватели</smart-tree-item>
-    <smart-tree-item disabled>Дисциплины</smart-tree-item>
+    <smart-tree-item>Преподаватели</smart-tree-item>
+    <smart-tree-item>Дисциплины</smart-tree-item>
     <smart-tree-item>Учебные потоки</smart-tree-item>
     <smart-tree-item>Виды учебной работы</smart-tree-item>
     <smart-tree-item>Должности</smart-tree-item>

@@ -22,23 +22,30 @@
           <div style="flex: 0 0 auto; margin-right: 5px">
             <b-button style="width: 85px" @click="addRow" variant="outline-primary">Добавить</b-button>
           </div>
-          <div style="flex: 1 1 1px">
-            <b-input-group prepend="Название">
-              <b-form-input v-model="name"></b-form-input>
+          <div style="flex: 1 1 1px; margin-right: 5px">
+            <b-input-group prepend="ФИО">
+              <b-form-input v-model="FIO"></b-form-input>
             </b-input-group>
           </div>
-          <div style="flex: 0 0 350px; display: flex;">
-            <div style="flex: 11 1 1px; margin-left: 5px">
-              <b-input-group prepend="Бюджетные">
-                <b-form-input v-model="budget"></b-form-input>
+
+          <div style="flex: 0 0 375px; display: flex;">
+            <div style="flex: 0 0 250px;">
+              <b-input-group prepend="Должность">
+                <b-form-select v-model="selected" :options="options"></b-form-select>
               </b-input-group>
             </div>
-            <div style="flex: 12 1 1px; margin-left: 5px">
-              <b-input-group prepend="Внебюджетные">
-                <b-form-input v-model="unbudget"></b-form-input>
+            <div style="flex: 0 0 120px; margin-left: 5px">
+              <b-input-group prepend="Ставка">
+                <b-form-input v-model="Rate"></b-form-input>
               </b-input-group>
             </div>
           </div>
+
+          <!--          <div style="flex: 0 0 250px; display: flex;">-->
+          <!--            <b-input-group prepend="Должность">-->
+          <!--              <b-form-select v-model="selected" :options="options"></b-form-select>-->
+          <!--            </b-input-group>-->
+          <!--          </div>-->
         </div>
 
         <div style="height: 10px"></div>
@@ -47,15 +54,22 @@
           <div style="flex: 0 0 auto; margin-right: 5px">
             <b-button style="width: 85px" @click="removeRow" variant="outline-primary">Удалить</b-button>
           </div>
-          <div style="flex: 1 1 1px">
-            <b-input-group prepend="Институт">
-              <b-form-input v-model="university"></b-form-input>
+          <div style="flex: 0 0 180px">
+            <b-input-group prepend="Учёная степень">
+              <b-form-input v-model="Degree"></b-form-input>
             </b-input-group>
           </div>
 
-          <div style="flex: 0 0 345px; margin-left: 5px">
-            <b-input-group prepend="Кол-во студентов">
-              <b-form-input v-model="studentAmount"></b-form-input>
+          <div style="flex: 0 0 150px; margin-left: 5px">
+            <b-input-group prepend="Статус">
+              <b-form-input v-model="Status"></b-form-input>
+            </b-input-group>
+          </div>
+
+
+          <div style="flex: 1 1 1px; margin-left: 5px">
+            <b-input-group prepend="Примечание">
+              <b-form-input v-model="Note"></b-form-input>
             </b-input-group>
           </div>
         </div>
@@ -70,7 +84,7 @@
 import Grid from "@/components/Grid";
 import * as db from "./db.js";
 
-const tableName = "Streams",
+const tableName = "Teachers",
     gridId = tableName + "ID";
 
 export default {
@@ -78,7 +92,7 @@ export default {
     Grid
   },
 
-  name: "StudyStream",
+  name: "Teachers",
 
   data() {
     return {
@@ -91,19 +105,15 @@ export default {
             field: tableName + "ID",
             hide: true
           },
-          {field: 'Name', headerName: 'Название', minWidth: 10, width: 150},
-          {field: 'Institut', headerName: 'Институт', minWidth: 10, width: 150},
-          {field: 'StQuantity', headerName: 'Кол-во студентов', minWidth: 10},
-          {field: 'BudjetSt', headerName: 'Бюджетные', minWidth: 10},
-          {field: 'UnBudgetSt', headerName: 'Внебюджетные', minWidth: 10},
+          {field: 'FIO', headerName: 'ФИО', minWidth: 10, width: 150},
+          {field: 'TeachersJob', headerName: 'Должность', minWidth: 10, width: 150},
+          {field: 'Degree', headerName: 'Учёная степень', minWidth: 10},
+          {field: 'Status', headerName: 'Статус', minWidth: 10},
+          {field: 'Rate', headerName: 'Ставка', minWidth: 10},
+          {field: 'Note', headerName: 'Примечания', minWidth: 10},
           {
-            headerName: "YearID",
-            field: "YearID",
-            hide: true
-          },
-          {
-            headerName: "Note",
-            field: "Note",
+            headerName: "TeachersJobsID",
+            field: "TeachersJobsID",
             hide: true
           }
         ],
@@ -111,11 +121,17 @@ export default {
       },
 
       // Инпуты
-      name: "",
-      university: "",
-      studentAmount: "",
-      budget: "",
-      unbudget: ""
+      FIO: "",
+      TeachersJob: "",
+      Degree: "",
+      Status: "",
+      Rate: "",
+      Note: "",
+
+      selected: null,
+      options: [
+        {text: '-', value: null}
+      ]
     }
   },
 
@@ -125,10 +141,27 @@ export default {
     settings: Object
   },
 
-  mounted() {
-    // Обновление данных
-    this.updateGrid();
-    this.busVue.$on('delRow', this.removeRow);
+  async mounted() {
+    let data = await db.getTable('TeachersJobs');
+    if (data && data.data) {
+      this.doljnosti = data.data;
+
+      if (this.doljnosti && Array.isArray(this.doljnosti) && this.doljnosti.length > 0) {
+        this.doljnosti.forEach((item) => {
+          this.options.push({text: item.Name, value: item.TeachersJobsID})
+        })
+      } else {
+        this.options = [
+          {text: '-', value: null}
+        ]
+      }
+
+      this.updateGrid();
+      this.busVue.$on('delRow', this.removeRow);
+    } else {
+      console.error(data)
+      this.bus.notify('Ошибка обновления данных', 'e');
+    }
   },
 
   beforeDestroy() {
@@ -136,6 +169,16 @@ export default {
   },
 
   methods: {
+    resetAllInputs() {
+      this.FIO = "";
+      this.TeachersJob = "";
+      this.Degree = "";
+      this.Status = "";
+      this.Rate = "";
+      this.Note = "";
+      this.selected = null;
+    },
+
     // Сохранить данные
     async save() {
       let gridRows = this.$refs.grid.getAll();
@@ -149,24 +192,20 @@ export default {
 
       fields.forEach((item) => {
         let field = item.field;
-        console.info(item);
-        if (field.toLowerCase().indexOf('id') === -1 && !item.hide) {
+        if (field.toLowerCase().indexOf('id') === -1 && !item.hide && field !== "TeachersJob") {
           fieldsStr += field + ', ';
         }
       })
+      fieldsStr += 'TeachersJobsID' + ', ';
       fieldsStr = fieldsStr.slice(0, -2);
 
-      let err = await db.run("INSERT INTO " + tableName + "(" + fieldsStr + ") VALUES(" + "'" + this.name + "','" + this.university + "','" + this.studentAmount + "','" + this.budget + "','" + this.unbudget + "');")
+      let err = await db.run("INSERT INTO " + tableName + "(" + fieldsStr + ") VALUES(" + "'" + this.FIO + "','" + this.Degree + "','" + this.Status + "','" + this.Rate + "','" + this.Note + "','" + this.selected + "');")
       if (err) {
         console.error(err)
         this.bus.notify('Ошибка добавления записи', 'e');
       } else {
-        this.updateGrid();
-        this.name = "";
-        this.university = "";
-        this.studentAmount = "";
-        this.budget = "";
-        this.unbudget = "";
+        await this.updateGrid();
+        this.resetAllInputs();
         this.bus.notify('Данные добавлены', 's');
       }
     },
@@ -196,12 +235,27 @@ export default {
     async updateGrid() {
       let data = await db.getTable(tableName);
       if (data && data.data) {
-        data = data.data
+        data = data.data;
       } else {
         console.error(data)
         this.bus.notify('Ошибка обновления данных', 'e');
         return
       }
+
+      // todo Замена teacherid на надпись (мб реализовать в запросе)
+      data.forEach((item) => {
+        item.TeachersJob = '-';
+        if (item && item.TeachersJobsID) {
+          if (this.doljnosti && Array.isArray(this.doljnosti) && this.doljnosti.length > 0) {
+            this.doljnosti.forEach((item2) => {
+              if (item.TeachersJobsID === item2.TeachersJobsID) {
+                item.TeachersJob = item2.Name;
+              }
+            })
+          }
+        }
+      })
+
       this.$refs.grid.setAll(data);
     }
 

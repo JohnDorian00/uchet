@@ -30,6 +30,8 @@
 
 <script>
 
+import Teachers from "@/components/Teachers";
+import Disciplines from "@/components/Disciplines";
 import Doljnosti from "@/components/Doljnosti";
 import Settings from "@/components/Settings";
 import WorkTypes from "@/components/WorkTypes";
@@ -40,6 +42,8 @@ import $ from "jquery";
 export default {
   name: "MainWindow",
   components: {
+    Teachers,
+    Disciplines,
     Settings,
     Doljnosti,
     WorkTypes,

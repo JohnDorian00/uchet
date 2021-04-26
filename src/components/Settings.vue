@@ -8,7 +8,7 @@
       </div>
       <div style="flex: 0 0 1px;">
         <b-form-file
-            :key="saveFile.path"
+            :key="formKey"
             :browse-text="'Открыть'"
             id="saveForm"
             style="margin-bottom: 5px"
@@ -127,6 +127,7 @@ export default {
       saveFile: {},
       inpFileObj: null,
       placeholder: 'Укажите файл или перетащите его сюда...',
+      formKey: "0",
 
 
       gridSettings: {
@@ -162,12 +163,13 @@ export default {
       let locName = localStorage.getItem('name'),
           err = await db.connect();
 
-      console.info(err);
       if (err) {
         let text = locName ? "База данных " + locName + " не найдена" : "База данных не найдена";
         this.bus.notify(text, 'w');
         this.saveFile = {};
+        this.formKey = (parseInt(this.formKey) + 1) + "";
         this.placeholder = 'Укажите файл или перетащите его сюда...';
+        this.newSaveName = "";
         console.log(err);
       }
     }
@@ -198,6 +200,26 @@ export default {
   },
 
   methods: {
+    // Стереть все инпуты
+    breakSave() {
+      try {
+        localStorage.removeItem('name');
+        localStorage.removeItem('path');
+      } catch (e) {
+        console.warn(e);
+      }
+      this.newSaveName = "";
+      this.placeholder = 'Укажите файл или перетащите его сюда...';
+      this.saveFile = {};
+      this.directorOfInstitut = "";
+      this.nameOfInstitut = "";
+      this.nameOfKafedra = "";
+      this.shortNameOfKafedra = "";
+      this.stavka = "";
+      this.zavedKafedroy = "";
+      this.formKey = (parseInt(this.formKey) + 1) + "";
+    },
+
     // Сохранить данные
     async save() {
       let err = await db.run("INSERT OR REPLACE INTO Settings(SettingsID,directorOfInstitut,nameOfInstitut,nameOfKafedra,shortNameOfKafedra,stavka,zavedKafedroy) VALUES(0," + "'" + this.directorOfInstitut + "','" + this.nameOfInstitut + "','" + this.nameOfKafedra + "','" + this.shortNameOfKafedra + "','" + this.stavka + "','" + this.zavedKafedroy + "');")
@@ -219,10 +241,11 @@ export default {
         this.saveFile.path = path;
         this.saveFile.name = name;
         this.placeholder = path;
+        this.newSaveName = "";
       } else {
-        this.saveFile = {};
-        this.placeholder = 'Укажите файл или перетащите его сюда...';
+        this.breakSave();
       }
+      this.formKey = (parseInt(this.formKey) + 1) + "";
     },
 
     // Применение параметров к инпутам
@@ -262,7 +285,10 @@ export default {
       if (!this.newSaveName) {
         this.bus.notify("Укажите имя файла", 'w');
       } else {
-        this.newSaveName += '.db';
+
+        if (this.newSaveName.slice(-3) !== '.db') {
+          this.newSaveName += '.db';
+        }
 
         const {ipcRenderer} = require('electron');
         let env = JSON.parse(ipcRenderer.sendSync('get-real-path'));
@@ -275,24 +301,38 @@ export default {
         let err = await db.createAndConnect(path);
 
         if (err) {
-          console.error(err);
-          return this.bus.notify("Ошибка создания бд", 'e')
+          this.breakSave();
+          return this.bus.notify("Ошибка создания бд", 'e');
+        } else {
+          localStorage.setItem('name', name);
+          localStorage.setItem('path', path);
+          this.saveFile.name = name;
+          this.saveFile.path = path;
+          this.placeholder = this.saveFile.path;
+
+          this.newSaveName = "";
+          this.directorOfInstitut = "";
+          this.nameOfInstitut = "";
+          this.nameOfKafedra = "";
+          this.shortNameOfKafedra = "";
+          this.stavka = "";
+          this.zavedKafedroy = "";
+
+          let err = await db.initDefaultDateBase();
+          if (err && Array.isArray(err)) {
+            err.forEach((item) => {
+              if (item) {
+                console.error(item)
+
+                this.breakSave();
+                return this.bus.notify("Ошибка инициализации бд, подробности в консоли", 'e');
+              }
+            })
+          }
+
+          this.formKey = (parseInt(this.formKey) + 1) + "";
+          this.newSaveName = "";
         }
-
-        localStorage.setItem('name', name);
-        localStorage.setItem('path', path);
-        this.saveFile.name = name;
-        this.saveFile.path = path;
-        this.placeholder = this.saveFile.path;
-        this.newSaveName = "";
-        this.directorOfInstitut = "";
-        this.nameOfInstitut = "";
-        this.nameOfKafedra = "";
-        this.shortNameOfKafedra = "";
-        this.stavka = "";
-        this.zavedKafedroy = "";
-
-        await db.initDefaultDateBase();
       }
     },
 
@@ -306,12 +346,10 @@ export default {
         return
       }
 
-      if (newFile && newFile.name && newFile.name.slice(-2) !== 'db') {
+      if (newFile && newFile.name && newFile.name.slice(-3) !== '.db') {
         this.$nextTick(() => {
-          localStorage.removeItem('name');
-          localStorage.removeItem('path');
-          this.saveFile = null;
-          this.bus.notify("Расширение файла не .db", 'w');
+          this.breakSave();
+          return this.bus.notify("Расширение файла не .db", 'w');
         })
       } else {
         if (newFile.name && newFile.path) {
@@ -323,6 +361,7 @@ export default {
           this.saveFile.name = name;
           this.saveFile.path = path;
           this.placeholder = this.saveFile.path;
+          this.formKey = (parseInt(this.formKey) + 1) + "";
           await db.close();
           await db.connect(this.saveFile.path);
           await this.updateLabels();

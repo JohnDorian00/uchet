@@ -8,7 +8,10 @@ const defTables = [
             "nameOfInstitut TEXT, nameOfKafedra TEXT, shortNameOfKafedra TEXT, stavka TEXT, zavedKafedroy TEXT)"
     },
     
-    {name: "Jobs", fieldsString: "(JobsID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT, Note TEXT)"},
+    {
+        name: "Jobs",
+        fieldsString: "(JobsID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT, Note TEXT)"
+    },
     
     {
         name: "Streams",
@@ -20,11 +23,17 @@ const defTables = [
         name: "TeachersJobs",
         fieldsString: "(TeachersJobsID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT, Note Text)"
     },
-    // {
-    //     name: "Teachers",
-    //     fieldsString: "(Prep_ID INTEGER PRIMARY KEY AUTOINCREMENT, FOREIGN KEY(ArtistId) REFERENCES TeachersJobs(ArtistId)," +
-    //         " FIO TEXT, Degree TEXT, Status TEXT, Rate TEXT, Note Text)"
-    // },
+    
+    {
+        name: "Disciplines",
+        fieldsString: "(DisciplinesID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT, Note TEXT)"
+    },
+    
+    {
+        name: "Teachers",
+        fieldsString: "(TeachersID INTEGER PRIMARY KEY AUTOINCREMENT, TeachersJobsID INTEGER, FIO TEXT, Degree TEXT, " +
+            "Status TEXT, Rate TEXT, Note Text, FOREIGN KEY(TeachersJobsID) REFERENCES TeachersJobs(TeachersJobsID) ON DELETE SET NULL)"
+    },
 ];
 
 // let db = new sqlite3.Database(':memory:');
@@ -266,6 +275,7 @@ function initDefaultDateBase() {
         
         defTables.forEach((item) => {
             promises.push(new Promise((resolve2) => {
+                console.info(item.name);
                 db.run("CREATE TABLE IF NOT EXISTS " + item.name + item.fieldsString, [], (err) => {
                     resolve2(err);
                 });

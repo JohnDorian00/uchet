@@ -2,27 +2,39 @@
   <div style="width: 100%; height: 100%">
     <!--    ag-theme-alpine-dark-->
     <!--    style="width: calc(100% - 10px); height: calc(100% - 10px); margin: 5px;"-->
-    <ag-grid-vue
-        style="width: 100%; height: 100%"
-        class="ag-theme-alpine"
-        :id="id"
-        :gridOptions="gridOptions"
-        :rowData="rowData"
-        :columnDefs="columnDefs"
-        :pinnedTopRowData="pinnedTopRowData"
-        :pinnedBottomRowData="pinnedBottomRowData"
-        :suppressDragLeaveHidesColumns="true"
-        :animateRows="true"
-        :rowSelection="rowSelection || 'multiple'"
-        :overlayNoRowsTemplate="overlayNoRowsTemplate"
-        @grid-ready="onGridReady"
-    >
-    </ag-grid-vue>
+    <!--    <div v-show="isLoad" style="width: 100%; height: 100%">-->
+    <!--      <GridPreloader></GridPreloader>-->
+    <!--    </div>-->
+
+    <div style="width: 100%; height: 100%">
+      <ag-grid-vue
+          style="width: 100%; height: 100%"
+          class="ag-theme-alpine"
+          :id="id"
+          :gridOptions="gridOptions"
+          :rowData="rowData"
+          :columnDefs="columnDefs"
+          :pinnedTopRowData="pinnedTopRowData"
+          :pinnedBottomRowData="pinnedBottomRowData"
+          :suppressDragLeaveHidesColumns="true"
+          :animateRows="true"
+          :rowSelection="rowSelection || 'multiple'"
+          :overlayNoRowsTemplate="overlayNoRowsTemplate"
+          @grid-ready="onGridReady"
+      >
+      </ag-grid-vue>
+    </div>
+
   </div>
 </template>
+
+
 <script>
 
+const timeOffPreloader = 300;
+
 import {AgGridVue} from "ag-grid-vue";
+// import GridPreloader from "@/components/GridPreloader";
 
 import "smart-webcomponents/source/modules/smart.window.js";
 import "smart-webcomponents/source/styles/smart.default.css";
@@ -32,7 +44,8 @@ import $ from "jquery";
 
 export default {
   components: {
-    AgGridVue
+    AgGridVue,
+    // GridPreloader
   },
   name: "Grid",
   data() {
@@ -47,7 +60,9 @@ export default {
       pinnedTopRowData: null,
       pinnedBottomRowData: null,
 
-      overlayNoRowsTemplate: "<div>Нет данных</div>"
+      overlayNoRowsTemplate: "<div>Нет данных</div>",
+
+      isLoad: true
     }
   },
   props: {
@@ -113,25 +128,39 @@ export default {
   },
 
   methods: {
+    setLoad(isLoad) {
+      if (isLoad) {
+        this.isLoad = true;
+      } else {
+        setTimeout(() => {
+          this.isLoad = false;
+        }, timeOffPreloader)
+      }
+    },
+
     // Заполнение всего грида
     setAll(rowData) {
       this.rowData = rowData;
+      // setTimeout(() => {
+      //   this.isLoad = false;
+      // }, timeOffPreloader)
     },
 
     // Вывод всего грида
     getAll() {
-      let rowsData = [];
-      this.gridApi.forEachNode(function (node) {
-        rowsData.push(node.data);
-      });
-      return rowsData
+      // let rowsData = [];
+      // this.gridApi.forEachNode(function (node) {
+      //   console.info(node);
+      //   rowsData.push(node.data);
+      // });
+      return this.rowData
     },
 
     // Вернуть выбранные строки
     getSelected() {
-      let selectedNodes = this.gridApi.getSelectedNodes();
-      let selectedData = selectedNodes.map(node => node.data);
-      return selectedData;
+      let selectedNodes = this.gridApi.getSelectedNodes(),
+          selectedRows = selectedNodes.map(node => node.data);
+      return selectedRows
     },
 
     // Добавить строчку
@@ -199,6 +228,17 @@ export default {
 
 
 <style scoped>
+
+/* Анимация смены прелоадера */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 1s;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */
+{
+  opacity: 0;
+}
+
 .labels {
   flex: 0 0 160px;
   margin-right: 20px;

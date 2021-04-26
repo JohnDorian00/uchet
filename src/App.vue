@@ -1,7 +1,7 @@
 <template>
   <div id="app" style="margin-top: 0; width: 100%; height: 100%; -webkit-app-region: drag;">
 
-    <transition name="fade">
+    <transition name="fade" mode="out-in">
       <Preloader key="1" v-if="isLoading"></Preloader>
 
       <div key="2" v-else style="display: flex; width: 100%; height: 100%;">
@@ -57,10 +57,12 @@ export default {
       isLoading: true,
       settings: null,
       componentsAssoc: {
-        'Doljnosti': 'Должности',
-        'Settings': 'Настройки',
+        'Teachers': 'Преподаватели',
+        'Disciplines': 'Дисциплины',
+        'StudyStream': 'Учебные потоки',
         'WorkTypes': 'Виды учебной работы',
-        'StudyStream': 'Учебные потоки'
+        'Doljnosti': 'Должности',
+        'Settings': 'Настройки'
       }
     }
   },

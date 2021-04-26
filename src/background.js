@@ -18,6 +18,8 @@ async function createWindow() {
     const win = new BrowserWindow({
         width: 1024,
         height: 768,
+        minWidth: 986, // 16
+        minHeight: 679, // 79
         center: true,
         webPreferences: {
             // Use pluginOptions.nodeIntegration, leave this alone
@@ -59,6 +61,8 @@ const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
     app.quit()
 } else {
+    app.setAsDefaultProtocolClient("http://");
+    
     app.on('second-instance', () => {
         // Someone tried to run a second instance, we should focus our window.
         if (myWindow) {
