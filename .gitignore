@@ -4,3 +4,4 @@ dist_electron
 build
 uchet-linux-ia32
 .db
+*.db
