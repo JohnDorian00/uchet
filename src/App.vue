@@ -6,7 +6,7 @@
 
       <div key="2" v-else style="display: flex; width: 100%; height: 100%;">
 
-        <div style="flex: 0 0 300px; margin: 10px;">
+        <div style="flex: 0 0 350px; margin: 10px;">
           <Menu ref="menu" @changeComponent="changeComponent" :componentsAssoc="componentsAssoc"></Menu>
         </div>
 
@@ -57,6 +57,7 @@ export default {
       isLoading: true,
       settings: null,
       componentsAssoc: {
+        'IndividualPlan': 'Индивидуальный учебный план',
         'Teachers': 'Преподаватели',
         'Disciplines': 'Дисциплины',
         'StudyStream': 'Учебные потоки',
@@ -400,4 +401,11 @@ html, body {
   font-size: 13px;
 }
 
+.ag-header-group-cell-label {
+  justify-content: center;
+}
+
+.ag-header-cell-label {
+  justify-content: center;
+}
 </style>

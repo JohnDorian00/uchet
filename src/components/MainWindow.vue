@@ -30,6 +30,7 @@
 
 <script>
 
+import IndividualPlan from "@/components/IndividualPlan";
 import Teachers from "@/components/Teachers";
 import Disciplines from "@/components/Disciplines";
 import Doljnosti from "@/components/Doljnosti";
@@ -42,6 +43,7 @@ import $ from "jquery";
 export default {
   name: "MainWindow",
   components: {
+    IndividualPlan,
     Teachers,
     Disciplines,
     Settings,

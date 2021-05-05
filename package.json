@@ -11,6 +11,7 @@
     "dist:win32": "electron-builder --win --ia32",
     "rebuild-electron": "electron-rebuild -f -w sqlite3",
     "electron:build": "vue-cli-service electron:build --win --ia32",
+    "electron:packagerLinux": "electron-packager . --platform=linux --arch=ia32 --overwrite uchet --no-prune",
     "electron:serve": "vue-cli-service electron:serve --win --ia32",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
@@ -40,6 +41,7 @@
     "babel-eslint": "^10.1.0",
     "electron": "^11.4.3",
     "electron-devtools-installer": "^3.1.0",
+    "electron-packager": "^15.2.0",
     "electron-rebuild": "^2.3.5",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",

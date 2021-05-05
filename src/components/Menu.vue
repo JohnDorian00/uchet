@@ -13,57 +13,30 @@
 
     <smart-tree-item disabled>Плановые цифры нагрузки учебного года</smart-tree-item>
 
-    <smart-tree-items-group disabled>
+    <smart-tree-items-group>
       План
       <smart-tree-items-group>
         Индивидуальный учебный план
         <smart-tree-item>Почасовая УУ</smart-tree-item>
-        <smart-tree-item>Почасовая (институт)</smart-tree-item>
-        <smart-tree-item>Штатная нагрузка</smart-tree-item>
+        <smart-tree-item disabled>Штатная нагрузка</smart-tree-item>
       </smart-tree-items-group>
-      <smart-tree-item>Сводный план работы кафедры</smart-tree-item>
-      <smart-tree-item>Штатное расписание</smart-tree-item>
-      <smart-tree-item>План распределения штатной нагрузки Учебного управления</smart-tree-item>
-      <smart-tree-item>План распределения почасовой нагрузки Учебного управления</smart-tree-item>
-      <smart-tree-item>План распределения нагрузки института</smart-tree-item>
+      <smart-tree-item disabled>Сводный план работы кафедры</smart-tree-item>
+      <smart-tree-item disabled>Штатное расписание</smart-tree-item>
+      <smart-tree-item disabled>План распределения штатной нагрузки УУ</smart-tree-item>
+      <smart-tree-item disabled>План распределения почасовой нагрузки УУ</smart-tree-item>
       <smart-tree-items-group>
-        Распределение нагрузки Учебного управления
+        Распределение нагрузки УУ
         <smart-tree-item>I семестр</smart-tree-item>
         <smart-tree-item>II семестр</smart-tree-item>
       </smart-tree-items-group>
-      <smart-tree-items-group>
-        Распределение нагрузки института
-        <smart-tree-item>I семестр</smart-tree-item>
-        <smart-tree-item>II семестр</smart-tree-item>
-      </smart-tree-items-group>
+
     </smart-tree-items-group>
 
 
-    <smart-tree-items-group disabled>
+    <smart-tree-items-group>
       Учёт
       <smart-tree-items-group>
-        Учёт выполнения нагрузки института
-        <smart-tree-items-group>
-          I семестр
-          <smart-tree-item>Сентябрь</smart-tree-item>
-          <smart-tree-item>Октябрь</smart-tree-item>
-          <smart-tree-item>Ноябрь</smart-tree-item>
-          <smart-tree-item>Декабрь</smart-tree-item>
-          <smart-tree-item>Январь</smart-tree-item>
-        </smart-tree-items-group>
-        <smart-tree-items-group>
-          II семестр
-          <smart-tree-item>Февраль</smart-tree-item>
-          <smart-tree-item>Март</smart-tree-item>
-          <smart-tree-item>Апрель</smart-tree-item>
-          <smart-tree-item>Май</smart-tree-item>
-          <smart-tree-item>Июнь</smart-tree-item>
-        </smart-tree-items-group>
-        <smart-tree-item>Факт выполнения</smart-tree-item>
-      </smart-tree-items-group>
-
-      <smart-tree-items-group>
-        Учёт выполнения почасовой нагрузки Учебного управления
+        Учёт выполнения почасовой нагрузки УУ
         <smart-tree-items-group>
           I семестр
           <smart-tree-item>Сентябрь</smart-tree-item>
@@ -138,7 +111,7 @@ export default {
 
 smart-tree {
   height: 100%;
-  width: 314px;
+  width: 364px;
   font-size: 13px;
 
 }

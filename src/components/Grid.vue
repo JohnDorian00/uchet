@@ -8,13 +8,13 @@
 
     <div style="width: 100%; height: 100%">
       <ag-grid-vue
-          style="width: 100%; height: 100%"
+          style="width: 100%; height: 100%;"
           class="ag-theme-alpine"
           :id="id"
           :gridOptions="gridOptions"
           :rowData="rowData"
           :columnDefs="columnDefs"
-          :pinnedTopRowData="pinnedTopRowData"
+          :defaultColDef="defaultColDef"
           :pinnedBottomRowData="pinnedBottomRowData"
           :suppressDragLeaveHidesColumns="true"
           :animateRows="true"
@@ -57,10 +57,9 @@ export default {
       rowData: null,
       columnDefs: null,
       defaultColDef: null,
-      pinnedTopRowData: null,
       pinnedBottomRowData: null,
 
-      overlayNoRowsTemplate: "<div>Нет данных</div>",
+      overlayNoRowsTemplate: "<div></div>",
 
       isLoad: true
     }
@@ -77,7 +76,7 @@ export default {
 
   beforeMount() {
     this.gridOptions = {
-      suppressHorizontalScroll: true,
+      suppressHorizontalScroll: false,
       suppressCellSelection: true
     };
 
@@ -93,11 +92,12 @@ export default {
         fullName: 'Абрамов А.В.'
       }
     ];
+
     this.defaultColDef = {
       flex: 1,
-      minWidth: 20,
-      editable: true,
-      resizable: true,
+      minWidth: 10,
+      editable: false,
+      resizable: true
     };
 
 
@@ -243,10 +243,6 @@ export default {
   flex: 0 0 160px;
   margin-right: 20px;
   margin-top: 5px;
-}
-
-.ag-header-cell-label {
-  justify-content: center;
 }
 
 </style>
