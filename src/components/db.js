@@ -31,7 +31,7 @@ const defTables = [
     
     {
         name: "Teachers",
-        fieldsString: "(TeachersID INTEGER PRIMARY KEY AUTOINCREMENT, TeachersJobsID INTEGER, FIO TEXT, Degree TEXT, " +
+        fieldsString: "(TeachersID INTEGER PRIMARY KEY AUTOINCREMENT, FIO TEXT, TeachersJobsID INTEGER, Degree TEXT, " +
             "Status TEXT, Rate TEXT, Note Text, FOREIGN KEY(TeachersJobsID) REFERENCES TeachersJobs(TeachersJobsID) ON DELETE SET NULL)"
     },
 ];
@@ -147,7 +147,7 @@ function getTable(tableName) {
             return resolve(defErr + "нет подключения к базе данных");
         }
         if (!tableName || typeof tableName !== 'string') return resolve(defErr + "не указана таблица в бд");
-        db.all("SELECT * FROM " + tableName, (err, rows) => {
+        db.all("SELECT * FROM " + tableName + " ORDER BY 2", (err, rows) => {
             if (err) reject(new Error(defErr + err))
             else {
                 return resolve({data: rows})

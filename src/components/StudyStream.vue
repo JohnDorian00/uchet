@@ -149,7 +149,6 @@ export default {
 
       fields.forEach((item) => {
         let field = item.field;
-        console.info(item);
         if (field.toLowerCase().indexOf('id') === -1 && !item.hide) {
           fieldsStr += field + ', ';
         }
