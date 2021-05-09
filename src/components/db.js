@@ -34,6 +34,16 @@ const defTables = [
         fieldsString: "(TeachersID INTEGER PRIMARY KEY AUTOINCREMENT, FIO TEXT, TeachersJobsID INTEGER, Degree TEXT, " +
             "Status TEXT, Rate TEXT, Note Text, FOREIGN KEY(TeachersJobsID) REFERENCES TeachersJobs(TeachersJobsID) ON DELETE SET NULL)"
     },
+    
+    {
+        name: "IndividualPlan",
+        fieldsString: "(IndividualPlanID INTEGER PRIMARY KEY AUTOINCREMENT, TeachersID INTEGER, DisciplinesID INTEGER, " +
+            "StreamsID INTEGER, JobsID INTEGER, Shtatn INTEGER, Pochas INTEGER, Semestr INTEGER, SUM INTEGER, " +
+            "FOREIGN KEY(TeachersID) REFERENCES Teachers(TeachersID) ON DELETE CASCADE, " +
+            "FOREIGN KEY(DisciplinesID) REFERENCES Disciplines(DisciplinesID) ON DELETE CASCADE, " +
+            "FOREIGN KEY(StreamsID) REFERENCES Streams(StreamsID) ON DELETE CASCADE, " +
+            "FOREIGN KEY(JobsID) REFERENCES Jobs(JobsID) ON DELETE CASCADE)"
+    }
 ];
 
 // let db = new sqlite3.Database(':memory:');
@@ -235,6 +245,28 @@ function addRows(tableName, rows) {
 }
 
 // Выполнить запрос
+async function all(sql) {
+    let defErr = 'Ошибка исполнения sql all:'
+    return new Promise((resolve) => {
+        if (!db) {
+            return resolve(defErr + "нет подключения к базе данных");
+        }
+        if (typeof sql !== 'string' || !sql) return resolve('Указан нетекстовый запрос');
+        
+        console.log(sql);
+        
+        // let data = [];
+        
+        db.all(sql, [], (err, rows) => {
+            if (err) {
+                return resolve(err)
+            }
+            return resolve(rows)
+        });
+    })
+}
+
+// Выполнить запрос
 async function run(sql) {
     let defErr = 'Ошибка исполнения sql:'
     return new Promise((resolve) => {
@@ -289,4 +321,16 @@ function initDefaultDateBase() {
 }
 
 
-export {run, connect, createAndConnect, close, getPath, getDB, isConnected, getTable, addRows, initDefaultDateBase};
+export {
+    run,
+    all,
+    connect,
+    createAndConnect,
+    close,
+    getPath,
+    getDB,
+    isConnected,
+    getTable,
+    addRows,
+    initDefaultDateBase
+};

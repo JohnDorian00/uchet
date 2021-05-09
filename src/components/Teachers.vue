@@ -192,7 +192,7 @@ export default {
 
       fields.forEach((item) => {
         let field = item.field;
-        if (field.toLowerCase().indexOf('id') === -1 && !item.hide && field !== "TeachersJob") {
+        if (field && field.toLowerCase().indexOf('id') === -1 && !item.hide && field !== "TeachersJob") {
           fieldsStr += field + ', ';
         }
       })

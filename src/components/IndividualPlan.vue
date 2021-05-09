@@ -5,7 +5,7 @@
     <div class="borderWhite" style="flex: 0 0 1px; margin: 0; display: flex; flex-direction: column">
       <div style="flex: 0 0 10px;">
         <b-input-group prepend="Преподаватель">
-          <b-form-select v-model="selectedTeacher" :options="optionsTeachers"></b-form-select>
+          <b-form-select v-model="selectedTeacher" :options="optionsTeachers" @change="teacherChanged"></b-form-select>
         </b-input-group>
       </div>
     </div>
@@ -93,7 +93,7 @@
 import Grid from "@/components/Grid";
 import * as db from "./db.js";
 
-const tableName = "Teachers",
+const tableName = "IndividualPlan",
     gridId = tableName + "ID";
 
 export default {
@@ -116,35 +116,41 @@ export default {
           },
 
 
-          {field: 'FIO', headerName: 'Дисциплина', minWidth: 10, width: 150},
-          {field: 'TeachersJob', headerName: 'Поток', minWidth: 10, width: 150},
-          {field: 'Degree', headerName: 'Вид занятия', minWidth: 10},
+          {field: 'DisciplinesName', headerName: 'Дисциплина', minWidth: 10, width: 150},
+          {field: 'StreamsName', headerName: 'Поток', minWidth: 10, width: 150},
+          {field: 'JobsName', headerName: 'Вид занятия', minWidth: 10},
           {
-            field: 'Status', headerName: 'Нагрузка УУ', minWidth: 10,
+            headerName: 'Нагрузка УУ', minWidth: 10,
             children: [
-              {field: 'shtat', headerName: 'штатн'},
-              {field: 'hours', headerName: 'почас'},
+              {field: 'Shtatn', headerName: 'штатн'},
+              {field: 'Pochas', headerName: 'почас'},
             ]
           },
-          {field: 'Rate', headerName: 'Почас в семестр', minWidth: 10},
+          {field: 'SUM', headerName: 'Почас в семестр', minWidth: 10},
 
 
           {
-            headerName: "TeachersJobsID",
-            field: "TeachersJobsID",
+            headerName: "DisciplinesID",
+            field: "DisciplinesID",
+            hide: true
+          },
+
+          {
+            headerName: "StreamsID",
+            field: "StreamsID",
+            hide: true
+          },
+
+          {
+            headerName: "JobsID",
+            field: "JobsID",
             hide: true
           }
+
+
         ],
         rowData: [],
       },
-
-      // Инпуты
-      FIO: "",
-      TeachersJob: "",
-      Degree: "",
-      Status: "",
-      Rate: "",
-      Note: "",
 
       selectedTeacher: null,
       optionsTeachers: [
@@ -269,6 +275,11 @@ export default {
       console.error(data)
       this.bus.notify('Ошибка обновления данных', 'e');
     }
+
+    await this.updateGrid(1);
+    await this.updateGrid(2);
+
+    this.busVue.$on('delRow', this.removeRow);
   },
 
   beforeDestroy() {
@@ -276,6 +287,11 @@ export default {
   },
 
   methods: {
+    teacherChanged() {
+      this.updateGrid(1);
+      this.updateGrid(2);
+    },
+
     resetAllInputs() {
       this.selectedDisciplines = null;
       this.selectedStream = null;
@@ -284,36 +300,26 @@ export default {
 
     // Добавить строку
     async addRow() {
-      let fields = this.gridSettings.columnDefs,
-          fieldsStr = "";
+      // console.info("INSERT INTO " + tableName + "(TeachersID, DisciplinesID, StreamsID, JobsID, Shtatn, Pochas, Semestr, SUM) VALUES(" + "'" + this.selectedTeacher + "','" + this.selectedDisciplines + "','" + this.selectedStream + "','" + this.selectedJobs + "', 0, 0, '" + this.selectedSemestr + "','" + 0 + "');");
 
-      fields.forEach((item) => {
-        let field = item.field;
-        if (field.toLowerCase().indexOf('id') === -1 && !item.hide && field !== "TeachersJob") {
-          fieldsStr += field + ', ';
-        }
-      })
-      fieldsStr += 'TeachersJobsID' + ', ';
-      fieldsStr = fieldsStr.slice(0, -2);
-
-      console.info("INSERT INTO " + tableName + "(" + fieldsStr + ") VALUES(" + "'" + this.FIO + "','" + this.Degree + "','" + this.Status + "','" + this.Rate + "','" + this.Note + "','" + this.selected + "');");
-
-      // let err = await db.run("INSERT INTO " + tableName + "(" + fieldsStr + ") VALUES(" + "'" + this.FIO + "','" + this.Degree + "','" + this.Status + "','" + this.Rate + "','" + this.Note + "','" + this.selected + "');")
-      // if (err) {
-      //   console.error(err)
-      //   this.bus.notify('Ошибка добавления записи', 'e');
-      // } else {
-      //   await this.updateGrid();
-      //   this.resetAllInputs();
-      //   this.bus.notify('Данные добавлены', 's');
-      // }
+      let err = await db.run("INSERT INTO " + tableName + "(TeachersID, DisciplinesID, StreamsID, JobsID, Shtatn, Pochas, Semestr, SUM) VALUES(" + "'" + this.selectedTeacher + "','" + this.selectedDisciplines + "','" + this.selectedStream + "','" + this.selectedJobs + "', 0, 0, '" + this.selectedSemestr + "','" + 0 + "');")
+      if (err) {
+        console.error(err)
+        this.bus.notify('Ошибка добавления записи', 'e');
+      } else {
+        await this.updateGrid(this.selectedSemestr);
+        // this.resetAllInputs();
+        this.bus.notify('Данные добавлены', 's');
+      }
     },
 
     // Удалить строку
     removeRow() {
-      let rows = this.$refs.grid.getSelected(),
+      let rows = this.$refs.grid1.getSelected().concat(this.$refs.grid2.getSelected()),
           stmt = db.getDB().prepare("DELETE FROM " + tableName + " WHERE " + gridId + " = (?)"),
           promises = [];
+
+      console.info(rows);
 
       rows.forEach((item) => {
         promises.push(new Promise((resolve) => {
@@ -326,35 +332,30 @@ export default {
       Promise.all(promises).then((err) => {
         if (err) console.warn(err)
         stmt.finalize();
-        this.updateGrid();
+        this.updateGrid(1);
+        this.updateGrid(2);
       })
     },
 
     // Обновить параметры грида
     async updateGrid(gridNum) {
-      let data = await db.getTable(tableName);
-      if (data && data.data) {
-        data = data.data;
+      if (!this.selectedTeacher || !gridNum) return
+
+      let err = await db.all("SELECT IndividualPlan.*, Disciplines.Name as DisciplinesName, Streams.Name as StreamsName, " +
+          "Jobs.Name as JobsName FROM IndividualPlan " +
+          "INNER JOIN Disciplines ON Disciplines.DisciplinesID = IndividualPlan.DisciplinesID " +
+          "INNER JOIN Streams ON Streams.StreamsID = IndividualPlan.StreamsID " +
+          "INNER JOIN Jobs ON Jobs.JobsID = IndividualPlan.JobsID " +
+          "WHERE Semestr = " + (gridNum) + " AND TeachersID = " + this.selectedTeacher + ";");
+
+
+      if (err && !Array.isArray(err)) {
+        console.error(err)
+        // this.bus.notify('Ошибка обновления', 'e');
       } else {
-        console.error(data)
-        this.bus.notify('Ошибка обновления данных', 'e');
-        return
+        // this.resetAllInputs();
+        this.$refs["grid" + gridNum].setAll(err);
       }
-
-      data.forEach((item) => {
-        item.TeachersJob = '-';
-        if (item && item.TeachersJobsID) {
-          if (this.doljnosti && Array.isArray(this.doljnosti) && this.doljnosti.length > 0) {
-            this.doljnosti.forEach((item2) => {
-              if (item.TeachersJobsID === item2.TeachersJobsID) {
-                item.TeachersJob = item2.Name;
-              }
-            })
-          }
-        }
-      })
-
-      this.$refs["grid" + gridNum].setAll(data);
     }
   }
 }

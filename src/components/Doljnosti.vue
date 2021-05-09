@@ -114,7 +114,7 @@ export default {
 
       fields.forEach((item) => {
         let field = item.field;
-        if (field.toLowerCase().indexOf('id') === -1) {
+        if (field && field.toLowerCase().indexOf('id') === -1) {
           fieldsStr += field + ', ';
         }
       })
