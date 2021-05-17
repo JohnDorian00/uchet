@@ -3,7 +3,7 @@
 
     <!--     Label menu item-->
     <div class="borderWhite" style="flex: 0 0 20px;">
-      {{ componentsAssoc[currentComponent] }}
+      {{ (componentsAssoc[currentComponent] === 'I семестр') ? 'Распределение нагрузки за I семестр' : (componentsAssoc[currentComponent] === 'II семестр') ? 'Распределение нагрузки за II семестр' : componentsAssoc[currentComponent]}}
     </div>
 
     <!--     Основной компонент-->
@@ -30,6 +30,13 @@
 
 <script>
 
+import Raspred1 from "@/components/Raspred1";
+import NagrPochas from "@/components/NagrPochas";
+import NagrShtat from "@/components/NagrShtat";
+import Shtat from "@/components/Shtat";
+import Plan from "@/components/Plan";
+import IndividualPlanShtat from "@/components/IndividualPlanShtat";
+import IndividualPlanHours from "@/components/IndividualPlanHours";
 import IndividualPlan from "@/components/IndividualPlan";
 import Teachers from "@/components/Teachers";
 import Disciplines from "@/components/Disciplines";
@@ -43,6 +50,13 @@ import $ from "jquery";
 export default {
   name: "MainWindow",
   components: {
+    Raspred1,
+    NagrPochas,
+    NagrShtat,
+    Shtat,
+    Plan,
+    IndividualPlanShtat,
+    IndividualPlanHours,
     IndividualPlan,
     Teachers,
     Disciplines,

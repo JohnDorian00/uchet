@@ -10,40 +10,71 @@ const defTables = [
     
     {
         name: "Jobs",
-        fieldsString: "(JobsID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT, Note TEXT)"
+        fieldsString: "(Job_ID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT, Note TEXT)"
     },
     
     {
         name: "Streams",
-        fieldsString: "(StreamsID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT, Institut TEXT, StQuantity INTEGER ," +
+        fieldsString: "(ID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT, Institut TEXT, StQuantity INTEGER ," +
             "           BudjetSt INTEGER, UnBudgetSt INTEGER, YearID INTEGER, Note TEXT)"
     },
     
     {
+        name: "Years",
+        fieldsString: "(ID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Year1 INTEGER, Year2 INTEGER)"
+    },
+    
+    {
         name: "TeachersJobs",
-        fieldsString: "(TeachersJobsID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT, Note Text)"
+        fieldsString: "(ID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT, Note Text)"
     },
     
     {
         name: "Disciplines",
-        fieldsString: "(DisciplinesID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT, Note TEXT)"
+        fieldsString: "(ID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Name TEXT, Note TEXT)"
     },
     
     {
         name: "Teachers",
-        fieldsString: "(TeachersID INTEGER PRIMARY KEY AUTOINCREMENT, FIO TEXT, TeachersJobsID INTEGER, Degree TEXT, " +
-            "Status TEXT, Rate TEXT, Note Text, FOREIGN KEY(TeachersJobsID) REFERENCES TeachersJobs(TeachersJobsID) ON DELETE SET NULL)"
+        fieldsString: "(ID INTEGER PRIMARY KEY AUTOINCREMENT, FIO TEXT, Job_ID INTEGER, Degree TEXT, " +
+            "Status TEXT, Rate INTEGER, Note Text, FOREIGN KEY(Job_ID) REFERENCES TeachersJobs(ID) ON DELETE SET NULL)"
     },
     
     {
-        name: "IndividualPlan",
-        fieldsString: "(IndividualPlanID INTEGER PRIMARY KEY AUTOINCREMENT, TeachersID INTEGER, DisciplinesID INTEGER, " +
-            "StreamsID INTEGER, JobsID INTEGER, Shtatn INTEGER, Pochas INTEGER, Semestr INTEGER, SUM INTEGER, " +
-            "FOREIGN KEY(TeachersID) REFERENCES Teachers(TeachersID) ON DELETE CASCADE, " +
-            "FOREIGN KEY(DisciplinesID) REFERENCES Disciplines(DisciplinesID) ON DELETE CASCADE, " +
-            "FOREIGN KEY(StreamsID) REFERENCES Streams(StreamsID) ON DELETE CASCADE, " +
-            "FOREIGN KEY(JobsID) REFERENCES Jobs(JobsID) ON DELETE CASCADE)"
+        name: "IndividualPlan_1",
+        fieldsString: "(ID INTEGER PRIMARY KEY AUTOINCREMENT, Prep_ID INTEGER, Discipl_ID INTEGER, " +
+            "Group_ID INTEGER, Job_ID INTEGER, Shtatn INTEGER, Pochas INTEGER, IUIt INTEGER, Semestr INTEGER, PochasSum INTEGER, " +
+            "auditor TEXT, Sum INTEGER, Note TEXT, " +
+            "FOREIGN KEY(Prep_ID) REFERENCES Teachers(ID) ON DELETE CASCADE, " +
+            "FOREIGN KEY(Discipl_ID) REFERENCES Disciplines(ID) ON DELETE CASCADE, " +
+            "FOREIGN KEY(Group_ID) REFERENCES Streams(ID) ON DELETE CASCADE, " +
+            "FOREIGN KEY(Job_ID) REFERENCES Jobs(Job_ID) ON DELETE CASCADE)"
+    },
+    
+    {
+        name: "ShtatnoeRaspisanie",
+        fieldsString: "(ID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Job_ID INTEGER, VAK INTEGER, Plan INTEGER, " +
+            "FOREIGN KEY(Job_ID) REFERENCES Jobs(Job_ID) ON DELETE CASCADE)"
+    },
+    
+    {
+        name: "PlannedJobs",
+        fieldsString: "(ID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Job_ID INTEGER, Planned INTEGER, Fact INTEGER, Dif INTEGER, " +
+            "FOREIGN KEY(Job_ID) REFERENCES Jobs(Job_ID) ON DELETE CASCADE)"
+    },
+    
+    {
+        name: "Uchet",
+        fieldsString: "(ID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, Prep_ID INTEGER, Job_ID INTEGER, IUIT INTEGER, UU INTEGER, month INTEGER, " +
+            "FOREIGN KEY(Job_ID) REFERENCES Jobs(Job_ID) ON DELETE CASCADE)"
+    },
+    
+    {
+        name: "Planned",
+        fieldsString: "(ID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, MainVol INTEGER, StateJob INTEGER, HourFund INTEGER, " +
+            "BugetPart INTEGER)"
     }
+
 ];
 
 // let db = new sqlite3.Database(':memory:');
@@ -315,7 +346,10 @@ function initDefaultDateBase() {
         })
         
         Promise.all(promises).then((err) => {
-            resolve(err);
+            db.run("INSERT INTO TeachersJobs (ID, Name, Note) VALUES (0, '-', '-')", [], (err2) => {
+                console.info(err2);
+                resolve(err);
+            });
         })
     })
 }

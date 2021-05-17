@@ -6,8 +6,9 @@
     <div style="flex: 1 1 1px;">
       <Grid
           ref="grid"
+          :columnsGrid="columns"
+          :datafieldsGrid="datafields"
           :winName="'Doljnosti'"
-          :settings="gridSettings"
       ></Grid>
     </div>
 
@@ -49,11 +50,12 @@
 </template>
 
 <script>
+import "smart-webcomponents/source/styles/smart.default.css";
+import "smart-webcomponents/source/modules/smart.grid.js";
 import Grid from "@/components/Grid";
 import * as db from "./db.js";
 
-const tableName = "TeachersJobs",
-    gridId = tableName + "ID";
+const tableName = "TeachersJobs";
 
 export default {
   components: {
@@ -65,18 +67,19 @@ export default {
   data() {
     return {
       windowName: this.$options._componentTag,
-      gridSettings: {
-        columnDefs: [
-          {
-            headerName: tableName + "ID",
-            field: tableName + "ID",
-            hide: true
-          },
-          {field: 'Name', headerName: 'Название', minWidth: 10},
-          {field: 'Note', headerName: 'Сокращение', minWidth: 10}
-        ],
-        rowData: [],
-      },
+
+      columns: [
+        {datafield: 'ID', hidden: true},
+        {text: 'Название', datafield: 'Name'},
+        {text: 'Сокращение', datafield: 'Note'}
+      ],
+
+      datafields: [
+        {name: 'ID', type: 'int'},
+        {name: 'Name', type: 'string'},
+        {name: 'Note', type: 'string'},
+      ],
+
 
       // inputs
       name: "",
@@ -93,27 +96,19 @@ export default {
   async mounted() {
     // Обновление данных
     this.updateGrid();
-    this.busVue.$on('delRow', this.removeRow);
   },
 
   beforeDestroy() {
-    this.busVue.$off('delRow');
   },
 
   methods: {
-    // Сохранить данные
-    async save() {
-      let gridRows = this.$refs.grid.getAll();
-      await this.bus.dbFunc.setSave({[this.windowName]: {grid: gridRows}});
-    },
-
     // Добавить строку
     async addRow() {
-      let fields = this.gridSettings.columnDefs,
+      let fields = this.datafields,
           fieldsStr = "";
 
       fields.forEach((item) => {
-        let field = item.field;
+        let field = item.name;
         if (field && field.toLowerCase().indexOf('id') === -1) {
           fieldsStr += field + ', ';
         }
@@ -128,37 +123,39 @@ export default {
         await this.updateGrid();
         this.name = "";
         this.shortName = "";
-        this.bus.notify('Данные добавлены', 's');
+        // this.bus.notify('Данные добавлены', 's');
       }
     },
 
-
     // Удалить строку
-    removeRow() {
-      let rows = this.$refs.grid.getSelected(),
-          stmt = db.getDB().prepare("DELETE FROM " + tableName + " WHERE " + gridId + " = (?)"),
-          promises = [];
+    async removeRow() {
+      let row = this.$refs.grid.getSelected();
 
-      rows.forEach((item) => {
-        promises.push(new Promise((resolve) => {
-          stmt.run(item[gridId], (err) => {
-            console.warn(err);
-            resolve(err);
-          });
-        }));
-      })
-      Promise.all(promises).then((err) => {
-        if (err) console.warn(err)
-        stmt.finalize();
-        this.updateGrid();
-      })
+      if (!row) return
+
+      let err = await db.run("DELETE FROM " + tableName + " WHERE ID = ( " + row.ID + " )")
+
+      if (err) {
+        console.error(err)
+        this.bus.notify('Ошибка удаления записи', 'e');
+      } else {
+        await this.updateGrid();
+        // this.bus.notify('Данные удалены', 's');
+      }
     },
 
     // Обновить параметры грида
     async updateGrid() {
       let data = await db.getTable(tableName);
       if (data && data.data) {
-        data = data.data
+        let tmp = data.data;
+        data = [];
+        tmp.forEach((item) => {
+          if (item.ID !== 0) {
+            data.push(item);
+            console.info(data);
+          }
+        })
       } else {
         console.error(data)
         this.bus.notify('Ошибка обновления данных', 'e');

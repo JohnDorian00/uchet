@@ -21,6 +21,7 @@ async function createWindow() {
         minWidth: 986, // 16
         minHeight: 679, // 79
         center: true,
+        autoHideMenuBar: true,
         webPreferences: {
             // Use pluginOptions.nodeIntegration, leave this alone
             // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
@@ -38,7 +39,7 @@ async function createWindow() {
         win.loadURL('app://./index.html')
     }
     
-    
+    win.focus();
     // ipcMain.on('dark-mode:toggle', () => {
     //     if (nativeTheme.shouldUseDarkColors) {
     //         nativeTheme.themeSource = 'light'

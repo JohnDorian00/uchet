@@ -7,7 +7,8 @@
       <Grid
           ref="grid"
           :winName="'StudyStream'"
-          :settings="gridSettings"
+          :columnsGrid="columns"
+          :datafieldsGrid="datafields"
       ></Grid>
     </div>
 
@@ -84,8 +85,7 @@
 import Grid from "@/components/Grid";
 import * as db from "./db.js";
 
-const tableName = "Teachers",
-    gridId = tableName + "ID";
+const tableName = "Teachers";
 
 export default {
   components: {
@@ -98,27 +98,28 @@ export default {
     return {
       windowName: this.$options._componentTag,
 
-      gridSettings: {
-        columnDefs: [
-          {
-            headerName: tableName + "ID",
-            field: tableName + "ID",
-            hide: true
-          },
-          {field: 'FIO', headerName: 'ФИО', minWidth: 10, width: 150},
-          {field: 'TeachersJob', headerName: 'Должность', minWidth: 10, width: 150},
-          {field: 'Degree', headerName: 'Учёная степень', minWidth: 10},
-          {field: 'Status', headerName: 'Статус', minWidth: 10},
-          {field: 'Rate', headerName: 'Ставка', minWidth: 10},
-          {field: 'Note', headerName: 'Примечания', minWidth: 10},
-          {
-            headerName: "TeachersJobsID",
-            field: "TeachersJobsID",
-            hide: true
-          }
-        ],
-        rowData: [],
-      },
+      columns: [
+        {datafield: 'ID', hidden: true},
+        {text: 'ФИО', datafield: 'FIO', width: '25%'},
+        {text: 'Должность', datafield: 'Job_Name'},
+        {text: 'Учёная степень', datafield: 'Degree'},
+        {text: 'Статус', datafield: 'Status'},
+        {text: 'Ставка', datafield: 'Rate'},
+        {text: 'Примечания', datafield: 'Note'},
+        {datafield: 'Job_ID', hidden: true}
+      ],
+
+      datafields: [
+        {name: 'ID', type: 'int'},
+        {name: 'FIO', type: 'string'},
+        {name: 'Job_Name', type: 'int'},
+        {name: 'Degree', type: 'string'},
+        {name: 'Status', type: 'string'},
+        {name: 'Rate', type: 'int'},
+        {name: 'Note', type: 'string'},
+        {name: 'Job_ID', type: 'int'}
+      ],
+
 
       // Инпуты
       FIO: "",
@@ -128,10 +129,8 @@ export default {
       Rate: "",
       Note: "",
 
-      selected: null,
-      options: [
-        {text: '-', value: null}
-      ]
+      selected: 0,
+      options: []
     }
   },
 
@@ -148,12 +147,10 @@ export default {
 
       if (this.doljnosti && Array.isArray(this.doljnosti) && this.doljnosti.length > 0) {
         this.doljnosti.forEach((item) => {
-          this.options.push({text: item.Name, value: item.TeachersJobsID})
+          this.options.push({text: item.Name, value: item.ID})
         })
       } else {
-        this.options = [
-          {text: '-', value: null}
-        ]
+        this.options = []
       }
 
       this.updateGrid();
@@ -176,28 +173,49 @@ export default {
       this.Status = "";
       this.Rate = "";
       this.Note = "";
-      this.selected = null;
-    },
-
-    // Сохранить данные
-    async save() {
-      let gridRows = this.$refs.grid.getAll();
-      await this.bus.dbFunc.setSave({[this.windowName]: {grid: gridRows}});
+      this.selected = 0;
     },
 
     // Добавить строку
+    // async addRow() {
+    //   let fields = this.gridSettings.columnDefs,
+    //       fieldsStr = "";
+    //
+    //   fields.forEach((item) => {
+    //     let field = item.field;
+    //     if (field && field.toLowerCase().indexOf('id') === -1 && !item.hide && field !== "TeachersJob") {
+    //       fieldsStr += field + ', ';
+    //     }
+    //   })
+    //   fieldsStr += 'TeachersJobsID' + ', ';
+    //   fieldsStr = fieldsStr.slice(0, -2);
+    //
+    //   let err = await db.run("INSERT INTO " + tableName + "(" + fieldsStr + ") VALUES(" + "'" + this.FIO + "','" + this.Degree + "','" + this.Status + "','" + this.Rate + "','" + this.Note + "','" + this.selected + "');")
+    //   if (err) {
+    //     console.error(err)
+    //     this.bus.notify('Ошибка добавления записи', 'e');
+    //   } else {
+    //     await this.updateGrid();
+    //     this.resetAllInputs();
+    //     this.bus.notify('Данные добавлены', 's');
+    //   }
+    // },
+
+    // Добавить строку
     async addRow() {
-      let fields = this.gridSettings.columnDefs,
+      let columns = this.columns,
           fieldsStr = "";
 
-      fields.forEach((item) => {
-        let field = item.field;
-        if (field && field.toLowerCase().indexOf('id') === -1 && !item.hide && field !== "TeachersJob") {
-          fieldsStr += field + ', ';
+      columns.forEach((item) => {
+        let column = item.datafield;
+        if (column && !item.hidden && column !== "Job_Name") {
+          fieldsStr += column + ', ';
         }
       })
-      fieldsStr += 'TeachersJobsID' + ', ';
+      fieldsStr += 'Job_ID' + ', ';
       fieldsStr = fieldsStr.slice(0, -2);
+
+      console.info(this.selected);
 
       let err = await db.run("INSERT INTO " + tableName + "(" + fieldsStr + ") VALUES(" + "'" + this.FIO + "','" + this.Degree + "','" + this.Status + "','" + this.Rate + "','" + this.Note + "','" + this.selected + "');")
       if (err) {
@@ -206,57 +224,39 @@ export default {
       } else {
         await this.updateGrid();
         this.resetAllInputs();
-        this.bus.notify('Данные добавлены', 's');
+        // this.bus.notify('Данные добавлены', 's');
       }
     },
 
     // Удалить строку
-    removeRow() {
-      let rows = this.$refs.grid.getSelected(),
-          stmt = db.getDB().prepare("DELETE FROM " + tableName + " WHERE " + gridId + " = (?)"),
-          promises = [];
+    async removeRow() {
+      let row = this.$refs.grid.getSelected();
 
-      rows.forEach((item) => {
-        promises.push(new Promise((resolve) => {
-          stmt.run(item[gridId], (err) => {
-            if (err) console.warn(err)
-            resolve(err);
-          });
-        }));
-      })
-      Promise.all(promises).then((err) => {
-        if (err) console.warn(err)
-        stmt.finalize();
-        this.updateGrid();
-      })
+      if (!row) return
+
+      let err = await db.run("DELETE FROM " + tableName + " WHERE ID = ( " + row.ID + " )")
+
+      if (err) {
+        console.error(err)
+        this.bus.notify('Ошибка удаления записи', 'e');
+      } else {
+        await this.updateGrid();
+        // this.bus.notify('Данные удалены', 's');
+      }
     },
 
     // Обновить параметры грида
     async updateGrid() {
-      let data = await db.getTable(tableName);
-      if (data && data.data) {
-        data = data.data;
+      let err = await db.all("SELECT Teachers.*, TeachersJobs.Name as Job_Name FROM Teachers LEFT JOIN TeachersJobs ON TeachersJobs.ID = Teachers.Job_ID;")
+
+      if (err && !Array.isArray(err)) {
+        console.error(err)
+        // this.bus.notify('Ошибка обновления', 'e');
       } else {
-        console.error(data)
-        this.bus.notify('Ошибка обновления данных', 'e');
-        return
+        // this.resetAllInputs();
+        console.info(err);
+        this.$refs.grid.setAll(err);
       }
-
-      // todo Замена teacherid на надпись (мб реализовать в запросе)
-      data.forEach((item) => {
-        item.TeachersJob = '-';
-        if (item && item.TeachersJobsID) {
-          if (this.doljnosti && Array.isArray(this.doljnosti) && this.doljnosti.length > 0) {
-            this.doljnosti.forEach((item2) => {
-              if (item.TeachersJobsID === item2.TeachersJobsID) {
-                item.TeachersJob = item2.Name;
-              }
-            })
-          }
-        }
-      })
-
-      this.$refs.grid.setAll(data);
     }
 
   }

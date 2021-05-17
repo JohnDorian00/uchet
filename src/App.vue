@@ -40,6 +40,13 @@ import $ from "jquery";
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
+import "smart-webcomponents/source/styles/smart.default.css";
+import "smart-webcomponents/source/modules/smart.grid.js";
+
+import "./styles/jqx.base.css";
+import "./styles/jqx.light.css";
+import "./styles/jqx.material.css";
+
 // import * as db from "../src/components/db.js";
 
 export default {
@@ -57,6 +64,13 @@ export default {
       isLoading: true,
       settings: null,
       componentsAssoc: {
+        'Raspred1': 'I семестр',
+        'NagrPochas': 'План распределения почасовой нагрузки УУ',
+        'NagrShtat': 'План распределения штатной нагрузки УУ',
+        'Shtat': 'Штатное расписание',
+        'Plan': 'Сводный план работы кафедры',
+        'IndividualPlanShtat': 'Штатная нагрузка',
+        'IndividualPlanHours': 'Почасовая УУ',
         'IndividualPlan': 'Индивидуальный учебный план',
         'Teachers': 'Преподаватели',
         'Disciplines': 'Дисциплины',
@@ -344,8 +358,15 @@ export default {
 @import "../node_modules/ag-grid-community/dist/styles/ag-theme-alpine.css";
 @import "../node_modules/ag-grid-community/dist/styles/ag-theme-alpine-dark.css";
 
+
 /*@import "~ag-grid-community/src/styles/ag-grid.scss";*/
 /*@import "~ag-grid-community/src/styles/ag-theme-alpine/sass/_ag-theme-alpine-mixin.scss";*/
+
+.jqx-window-modal {
+  /* Add the blur effect */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+}
 
 .menuItem {
   margin-bottom: 10px;

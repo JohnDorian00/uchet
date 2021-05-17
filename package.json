@@ -26,6 +26,7 @@
     "core-js": "^3.6.5",
     "idb": "^6.0.0",
     "jquery": "^3.6.0",
+    "jqwidgets-scripts": "^12.0.4",
     "node-pre-gyp": "^0.11.0",
     "smart-webcomponents": "^9.1.0",
     "sqlite3": "^4.2.0",

@@ -1,227 +1,367 @@
 <template>
-  <div style="width: 100%; height: 100%">
-    <!--    ag-theme-alpine-dark-->
-    <!--    style="width: calc(100% - 10px); height: calc(100% - 10px); margin: 5px;"-->
-    <!--    <div v-show="isLoad" style="width: 100%; height: 100%">-->
-    <!--      <GridPreloader></GridPreloader>-->
-    <!--    </div>-->
+  <div :id="winName" style="width: 100%; height: 100%;">
 
-    <div style="width: 100%; height: 100%">
-      <ag-grid-vue
-          style="width: 100%; height: 100%;"
-          class="ag-theme-alpine"
-          :id="id"
-          :gridOptions="gridOptions"
-          :rowData="rowData"
-          :columnDefs="columnDefs"
-          :defaultColDef="defaultColDef"
-          :pinnedBottomRowData="pinnedBottomRowData"
-          :suppressDragLeaveHidesColumns="true"
-          :animateRows="true"
-          :rowSelection="rowSelection || 'multiple'"
-          :overlayNoRowsTemplate="overlayNoRowsTemplate"
-          @grid-ready="onGridReady"
-      >
-      </ag-grid-vue>
+    <div style="width: 100%; height: 100%;">
+      <JqxGrid
+          ref="grid"
+          :theme="theme"
+          :width="'100%'"
+          :height="'100%'"
+          :source="dataAdapter"
+          :columns="columns"
+          :columngroups="columngroups"
+          :sortable="false"
+          :altrows="false"
+          :enabletooltip="false"
+          :editable="true"
+          :selectionmode="'singlerow'"
+          :editmode="'dblclick'"
+          :localization="localization"
+          :columnsresize="false"
+          :columnsreorder="false"
+          @rowselect="gridOnRowSelect($event)"
+          :enablekeyboarddelete="false"
+          :auto-create="autocreate"
+          @contextmenu="context ? GridOnContextMenu() : null"
+          @rowclick="context ? GridOnRowClick($event) : null">
+      </JqxGrid>
+
+      <!--      CONTEXT MENU-->
+      <JqxWindow ref="myWindow" :theme="theme"
+                 :width="270" :height="130" :modalOpacity="'0.9'"
+                 :resizable="false" :isModal="true" :autoOpen="false">
+        <div>Перенос индивидуального плана</div>
+        <div style="overflow: hidden">
+          <div style="width: 100%; height: 100%; display: flex; flex-direction: column">
+            <div style="flex: 1 1 1px">
+              <b-input-group prepend="Преподаватель">
+                <b-form-select v-model="selectedTeacher" :options="optionsTeachers"></b-form-select>
+              </b-input-group>
+            </div>
+            <div style="flex: 1 1 1px; display: flex; align-items: center">
+              <div style="flex: 1 1 1px; text-align: center;">
+                <b-button style="width: 85px" @click="transfer" variant="outline-primary">Перенести</b-button>
+              </div>
+              <div style="flex: 1 1 1px; text-align: center;">
+                <b-button style="width: 85px" @click="cancel" variant="outline-primary">Отменить</b-button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </JqxWindow>
+
+      <JqxMenu ref="myMenu" @itemclick="MenuOnItemClick($event)" :theme="theme"
+               :width="105" :height="32" :mode="'popup'" :autoOpenPopup="false">
+        <ul>
+          <li>Перенести</li>
+        </ul>
+      </JqxMenu>
+
     </div>
-
   </div>
 </template>
 
 
 <script>
 
-const timeOffPreloader = 300;
+import JqxGrid from "jqwidgets-scripts/jqwidgets-vue/vue_jqxgrid.vue";
+import JqxWindow from "jqwidgets-scripts/jqwidgets-vue/vue_jqxwindow.vue";
+import JqxMenu from "jqwidgets-scripts/jqwidgets-vue/vue_jqxmenu.vue";
 
-import {AgGridVue} from "ag-grid-vue";
-// import GridPreloader from "@/components/GridPreloader";
+import $ from "jquery";
+
 
 import "smart-webcomponents/source/modules/smart.window.js";
 import "smart-webcomponents/source/styles/smart.default.css";
 import "smart-webcomponents/source/modules/smart.grid.js";
-import $ from "jquery";
-
+import * as db from "./db";
 
 export default {
   components: {
-    AgGridVue,
-    // GridPreloader
+    JqxGrid,
+    JqxWindow,
+    JqxMenu
   },
   name: "Grid",
   data() {
     return {
       id: this.winName ? 'grid' + this.winName : 'grid',
-      gridOptions: null,
-      gridApi: null,
-      columnApi: null,
-      rowData: null,
-      columnDefs: null,
-      defaultColDef: null,
-      pinnedBottomRowData: null,
-
-      overlayNoRowsTemplate: "<div></div>",
-
-      isLoad: true
+      columns: [],
+      columngroups: [],
+      // eslint-disable-next-line no-undef
+      localization: this.getLocalization('ru'),
+      autocreate: true,
+      theme: 'material',
+      selectedTeacher: null,
+      optionsTeachers: [
+        {text: '-', value: null}
+      ]
     }
   },
   props: {
     bus: Object,
+    busVue: Object,
     winName: String,
-    settings: Object,
-    columns: Array,
-    data: Array,
-    defColDef: Object,
-    rowSelection: String
+    datafieldsGrid: Array,
+    columnsGrid: Array,
+    columngroupsGrid: Array,
+    noAutoCreate: Boolean,
+    context: Boolean
   },
 
-  beforeMount() {
-    this.gridOptions = {
-      suppressHorizontalScroll: false,
-      suppressCellSelection: true
+  created() {
+    if (this.noAutoCreate) this.autocreate = false;
+    this.source = {
+      localdata: [],
+      datafields: this.datafields,
+      datatype: 'array'
     };
 
-    this.columnDefs = [
-      {field: 'fullName', headerName: 'ФИО', minWidth: 150}
-    ];
-    // for (let i = 0; i < 18; i++) {
-    //   this.columnDefs.push({field: 'field' + i, headerName: 'ЛКР'});
-    // }
+    this.columnsGrid.forEach((item) => {
+      item.cellsalign = 'center';
+      item.align = 'center';
+    })
 
-    this.rowData = [
-      {
-        fullName: 'Абрамов А.В.'
+    this.columns = this.columnsGrid;
+
+    if (this.columngroupsGrid) {
+      this.columngroups = this.columngroupsGrid;
+    } else {
+      this.columngroups = [{}];
+    }
+
+    // eslint-disable-next-line no-undef
+    this.dataAdapter = new jqx.dataAdapter(this.source);
+    this.selectedRow = null;
+  },
+
+  async mounted() {
+    // eslint-disable-next-line no-undef
+    try {
+      $("#" + this.winName).on("focusout", (e) => {
+        if (e.relatedTarget && e.relatedTarget.innerText !== "Удалить") {
+          try {
+            this.$refs.grid.clearselection();
+            // eslint-disable-next-line no-empty
+          } catch (e) {
+          }
+        }
+      });
+      // eslint-disable-next-line no-empty
+    } catch (e) {
+    }
+
+    if (this.context) {
+      // Список преподавателей
+      let data = await db.getTable('Teachers');
+      if (data && data.data) {
+        this.teachers = data.data;
+
+        if (this.teachers && Array.isArray(this.teachers) && this.teachers.length > 0) {
+          this.optionsTeachers = [];
+          this.teachers.forEach((item) => {
+            this.optionsTeachers.push({text: item.FIO, value: item.ID})
+          })
+          this.selectedTeacher = this.teachers[0].ID;
+        } else {
+          this.optionsTeachers = [
+            {text: '-', value: null}
+          ]
+        }
+      } else {
+        console.error(data)
+        this.bus.notify('Ошибка обновления данных', 'e');
       }
-    ];
-
-    this.defaultColDef = {
-      flex: 1,
-      minWidth: 10,
-      editable: false,
-      resizable: true
-    };
-
-
-    this.init();
-  },
-
-  mounted() {
-    // for (let i = 0; i<50;i++) {
-    //   let obj = {
-    //     fullName: 'Абрамов А.В.'
-    //   }
-    //
-    //   for (let i=0; i<18; i++) {
-    //     obj['field'+i] = 0;
-    //   }
-    //
-    //   this.rowData.push(obj);
-    // }
-    //
-    // console.info(this.rowData);
-
-    this.gridApi = this.gridOptions.api;
-    this.gridColumnApi = this.gridOptions.columnApi;
+    }
   },
 
   beforeDestroy() {
-    $(window).off('resize');
+
   },
 
   methods: {
-    setLoad(isLoad) {
-      if (isLoad) {
-        this.isLoad = true;
-      } else {
-        setTimeout(() => {
-          this.isLoad = false;
-        }, timeOffPreloader)
-      }
-    },
-
     // Заполнение всего грида
     setAll(rowData) {
-      this.rowData = rowData;
-      // setTimeout(() => {
-      //   this.isLoad = false;
-      // }, timeOffPreloader)
-    },
-
-    // Вывод всего грида
-    getAll() {
-      // let rowsData = [];
-      // this.gridApi.forEachNode(function (node) {
-      //   console.info(node);
-      //   rowsData.push(node.data);
-      // });
-      return this.rowData
+      this.$refs.grid.clear();
+      this.source.localdata = rowData;
+      // eslint-disable-next-line no-undef
+      this.dataAdapter = new jqx.dataAdapter(this.source);
+      this.$refs.grid._source(this.dataAdapter);
+      this.$refs.grid.clearselection();
     },
 
     // Вернуть выбранные строки
     getSelected() {
-      let selectedNodes = this.gridApi.getSelectedNodes(),
-          selectedRows = selectedNodes.map(node => node.data);
-      return selectedRows
+      return this.$refs.grid.getrowdata(this.$refs.grid.getselectedrowindex())
     },
 
-    // Добавить строчку
-    addRow(rowArr, index) {
-      let row = {}, isNull = true;
-
-      this.columnDefs.forEach((item, index) => {
-        row[item.field] = rowArr[index];
-
-        if (rowArr[index] !== null) isNull = false;
-      })
-
-      if (isNull) return
-
-      this.gridOptions.api.applyTransaction({
-        add: [row],
-        addIndex: index,
-      });
+    gridOnRowSelect(event) {
+      this.selectedRow = event.args.row;
     },
 
-    // Удалить строчку
-    removeRow() {
-      let selectedRows = this.gridApi.getSelectedRows();
-      if (selectedRows) {
-        return this.gridApi.applyTransaction({remove: selectedRows});
+    // Вывод всего грида
+    getAll() {
+      return this.source.localdata
+    },
+
+    createGrid() {
+      this.$refs.grid.createComponent();
+    },
+
+    getLocalization() {
+      return {
+        // separator of parts of a date (e.g. '/' in 11/05/1955)
+        '/': '/',
+        // separator of parts of a time (e.g. ':' in 05:44 PM)
+        ':': ':',
+        // the first day of the week (0 = Sunday, 1 = Monday, etc)
+        firstDay: 0,
+        days: {
+          // full day names
+          names: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+          // abbreviated day names
+          namesAbbr: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+          // shortest day names
+          namesShort: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+        },
+        months: {
+          // full month names (13 months for lunar calendards -- 13th month should be '' if not lunar)
+          names: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', ''],
+          // abbreviated month names
+          namesAbbr: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', '']
+        },
+        // AM and PM designators in one of these forms:
+        // The usual view, and the upper and lower case versions
+        //      [standard,lowercase,uppercase]
+        // The culture does not use AM or PM (likely all standard date formats use 24 hour time)
+        //      null
+        AM: ['AM', 'am', 'AM'],
+        PM: ['PM', 'pm', 'PM'],
+        eras: [
+          // eras in reverse chronological order.
+          // name: the name of the era in this culture (e.g. A.D., C.E.)
+          // start: when the era starts in ticks (gregorian, gmt), null if it is the earliest supported era.
+          // offset: offset in years from gregorian calendar
+          {'name': 'A.D.', 'start': null, 'offset': 0}
+        ],
+        twoDigitYearMax: 2029,
+        patterns: {
+          // short date pattern
+          d: 'M/d/yyyy',
+          // long date pattern
+          D: 'dddd, MMMM dd, yyyy',
+          // short time pattern
+          t: 'h:mm tt',
+          // long time pattern
+          T: 'h:mm:ss tt',
+          // long date, short time pattern
+          f: 'dddd, MMMM dd, yyyy h:mm tt',
+          // long date, long time pattern
+          F: 'dddd, MMMM dd, yyyy h:mm:ss tt',
+          // month/day pattern
+          M: 'MMMM dd',
+          // month/year pattern
+          Y: 'yyyy MMMM',
+          // S is a sortable format that does not vary by culture
+          S: 'yyyy\u0027-\u0027MM\u0027-\u0027dd\u0027T\u0027HH\u0027:\u0027mm\u0027:\u0027ss',
+          // formatting of dates in MySQL DataBases
+          ISO: 'yyyy-MM-dd hh:mm:ss',
+          ISO2: 'yyyy-MM-dd HH:mm:ss',
+          d1: 'dd.MM.yyyy',
+          d2: 'dd-MM-yyyy',
+          d3: 'dd-MMMM-yyyy',
+          d4: 'dd-MM-yy',
+          d5: 'H:mm',
+          d6: 'HH:mm',
+          d7: 'HH:mm tt',
+          d8: 'dd/MMMM/yyyy',
+          d9: 'MMMM-dd',
+          d10: 'MM-dd',
+          d11: 'MM-dd-yyyy'
+        },
+        percentsymbol: '%',
+        currencysymbol: '$',
+        currencysymbolposition: 'before',
+        decimalseparator: '.',
+        thousandsseparator: ',',
+        pagergotopagestring: 'Go to page:',
+        pagershowrowsstring: 'Show rows:',
+        pagerrangestring: ' of ',
+        pagerpreviousbuttonstring: 'previous',
+        pagernextbuttonstring: 'next',
+        pagerfirstbuttonstring: 'first',
+        pagerlastbuttonstring: 'last',
+        groupsheaderstring: 'Drag a column and drop it here to group by that column',
+        sortascendingstring: 'Sort Ascending',
+        sortdescendingstring: 'Sort Descending',
+        sortremovestring: 'Remove Sort',
+        groupbystring: 'Group By this column',
+        groupremovestring: 'Remove from groups',
+        filterclearstring: 'Clear',
+        filterstring: 'Filter',
+        filtershowrowstring: 'Show rows where:',
+        filterorconditionstring: 'Or',
+        filterandconditionstring: 'And',
+        filterselectallstring: '(Select All)',
+        filterchoosestring: 'Please Choose:',
+        filterstringcomparisonoperators: ['empty', 'not empty', 'enthalten', 'enthalten(match case)',
+          'does not contain', 'does not contain(match case)', 'starts with', 'starts with(match case)',
+          'ends with', 'ends with(match case)', 'equal', 'equal(match case)', 'null', 'not null'],
+        filternumericcomparisonoperators: ['equal', 'not equal', 'less than', 'less than or equal', 'greater than', 'greater than or equal', 'null', 'not null'],
+        filterdatecomparisonoperators: ['equal', 'not equal', 'less than', 'less than or equal', 'greater than', 'greater than or equal', 'null', 'not null'],
+        filterbooleancomparisonoperators: ['equal', 'not equal'],
+        validationstring: 'Entered value is not valid',
+        emptydatastring: 'Нет данных',
+        filterselectstring: 'Select Filter',
+        loadtext: 'Загрузка...',
+        clearstring: 'Clear',
+        todaystring: 'Today'
+      };
+    },
+
+    // context menu
+    GridOnContextMenu() {
+      return false;
+    },
+
+    GridOnRowClick: function (event) {
+      if (event.args.rightclick) {
+        this.$refs.grid.selectrow(event.args.rowindex);
+        let scrollTop = window.scrollY;
+        let scrollLeft = window.scrollX;
+        this.$refs.myMenu.open(parseInt(event.args.originalEvent.clientX) + 5 + scrollLeft, parseInt(event.args.originalEvent.clientY) + 5 + scrollTop);
+        return false;
       }
     },
 
-    // Применение настроек
-    init() {
-      for (let key in this.settings) {
-        if (this[key] !== undefined && this.settings[key] !== undefined) {
-          this[key] = this.settings[key];
-        }
+    MenuOnItemClick: function (event) {
+      let args = event.args;
+
+      if (args.innerHTML == 'Перенести') {
+        this.$refs.myWindow.position = 'center';
+        this.$refs.myWindow.open();
       }
     },
 
-    // Авторесайз
-    onGridReady(params) {
-      params.api.sizeColumnsToFit();
-      $(window).on('resize', () => {
-        setTimeout(function () {
-          params.api.sizeColumnsToFit();
-        });
-      })
-      params.api.sizeColumnsToFit();
+    async transfer() {
+      let ID = this.selectedRow.ID;
+
+      let err = await db.run("UPDATE IndividualPlan_1 SET Prep_ID = " + this.selectedTeacher + " WHERE ID = " + ID + ";")
+      if (err) {
+        console.error(err)
+        this.bus.notify('Ошибка обновления записи', 'e');
+      } else {
+        this.busVue.$emit('updateGrid');
+        this.$refs.myWindow.close();
+        this.bus.notify('Данные обновлены', 's');
+      }
     },
 
-    // refreshTable() {
-    //   if (this.gridColumnApi.columnController && this.gridColumnApi.columnController.bodyWidthDirty) {
-    //     this.gridApi.sizeColumnsToFit();
-    //     if (this.refreshAttempts) {
-    //       this.refreshAttempts--;
-    //       setTimeout(() => {
-    //         this.refreshTable();
-    //       }, 100);
-    //     }
-    //   } else {
-    //     this.refreshAttempts = 0;
-    //   }
-    // }
+    cancel() {
+      this.$refs.myWindow.close();
+    }
+
   }
 }
 </script>
@@ -229,7 +369,8 @@ export default {
 
 <style scoped>
 
-/* Анимация смены прелоадера */
+
+/*Анимация смены прелоадера */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 1s;
 }

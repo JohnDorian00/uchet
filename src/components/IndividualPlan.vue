@@ -1,91 +1,107 @@
 <template>
-  <div style="display: flex; flex-direction: column">
-    <!--    ag-theme-alpine-dark-->
+  <div style="display: flex; flex-direction: row">
+    <div style="flex: 1 1 1px; display: flex; flex-direction: column">
+      <!--    ag-theme-alpine-dark-->
 
-    <div class="borderWhite" style="flex: 0 0 1px; margin: 0; display: flex; flex-direction: column">
-      <div style="flex: 0 0 10px;">
-        <b-input-group prepend="Преподаватель">
-          <b-form-select v-model="selectedTeacher" :options="optionsTeachers" @change="teacherChanged"></b-form-select>
-        </b-input-group>
+      <div class="borderWhite" style="flex: 0 0 1px; margin: 0; display: flex; flex-direction: column">
+        <div style="flex: 0 0 10px;">
+          <b-input-group prepend="Преподаватель">
+            <b-form-select v-model="selectedTeacher" :options="optionsTeachers"
+                           @change="teacherChanged"></b-form-select>
+          </b-input-group>
+        </div>
       </div>
-    </div>
-    <!--    Грид -->
-    <div class="borderWhite" style="flex: 1 1 1px; margin: 5px 0 0; display: flex; flex-direction: column">
-      <div class="borderWhite" style="margin: 0 0 5px;">
-        I семестр
+      <!--    Грид -->
+      <div class="borderWhite" style="flex: 1 1 1px; margin: 5px 0 0; display: flex; flex-direction: column">
+        <div class="borderWhite" style="margin: 0 0 5px;">
+          I семестр
+        </div>
+        <div style="flex: 1 1 1px;">
+          <Grid
+              ref="grid1"
+              :winName="'grid1'"
+              :bus="bus"
+              :busVue="busVue"
+              :columnsGrid="columns"
+              :datafieldsGrid="datafields"
+              :columngroupsGrid="columngroups"
+              :context="true"
+          ></Grid>
+        </div>
       </div>
-      <div style="flex: 1 1 1px;">
-        <Grid
-            ref="grid1"
-            :winName="'IndividualPlan'"
-            :settings="gridSettings"
-        ></Grid>
+
+      <div class="borderWhite" style="flex: 1 1 1px; margin: 5px 0 0; display: flex; flex-direction: column;">
+        <div class="borderWhite" style="margin: 0 0 5px;">
+          II семестр
+        </div>
+        <div style="flex: 1 1 1px;">
+          <Grid
+              ref="grid2"
+              :winName="'grid2'"
+              :bus="bus"
+              :busVue="busVue"
+              :columnsGrid="columns2"
+              :datafieldsGrid="datafields2"
+              :columngroupsGrid="columngroups2"
+              :context="true"
+          ></Grid>
+        </div>
       </div>
-    </div>
-
-    <div class="borderWhite" style="flex: 1 1 1px; margin: 5px 0 0; display: flex; flex-direction: column;">
-      <div class="borderWhite" style="margin: 0 0 5px;">
-        II семестр
-      </div>
-      <div style="flex: 1 1 1px;">
-        <Grid
-            ref="grid2"
-            :winName="'IndividualPlan'"
-            :settings="gridSettings"
-        ></Grid>
-      </div>
-    </div>
 
 
-    <!--    Пробел с рамкой -->
-    <div style="flex: 0 0 10px;"/>
+      <!--    Пробел с рамкой -->
+      <div style="flex: 0 0 10px;"/>
 
-    <!--    Кнопки и инпуты -->
-    <div class="borderWhite" style=" display: flex; margin: 0; flex-direction: column;">
-      <div class="menuItem marginInput" style="display: flex; flex-direction: column; margin: 0">
-        <div style="display: flex; flex-direction: row">
+      <!--    Кнопки и инпуты -->
+      <div class="borderWhite" style=" display: flex; margin: 0; flex-direction: column;">
+        <div class="menuItem marginInput" style="display: flex; flex-direction: column; margin: 0">
+          <div style="display: flex; flex-direction: row">
 
-          <div style="flex: 0 0 auto; margin-right: 5px">
-            <b-button style="width: 85px" @click="addRow" variant="outline-primary">Добавить</b-button>
+            <div style="flex: 0 0 auto; margin-right: 5px">
+              <b-button style="width: 85px" @click="addRow" variant="outline-primary">Добавить</b-button>
+            </div>
+
+            <div style="flex: 1 1 1px; margin-right: 5px">
+              <b-input-group prepend="Дисциплина">
+                <b-form-select v-model="selectedDisciplines" :options="optionsDisciplines"></b-form-select>
+              </b-input-group>
+            </div>
+
+            <div style="flex: 1 1 1px; display: flex;">
+              <b-input-group prepend="Поток">
+                <b-form-select v-model="selectedStream" :options="optionsStreams"></b-form-select>
+              </b-input-group>
+            </div>
+
           </div>
 
-          <div style="flex: 1 1 1px; margin-right: 5px">
-            <b-input-group prepend="Дисциплина">
-              <b-form-select v-model="selectedDisciplines" :options="optionsDisciplines"></b-form-select>
-            </b-input-group>
-          </div>
+          <div style="height: 10px"></div>
 
-          <div style="flex: 1 1 1px; display: flex;">
-            <b-input-group prepend="Поток">
-              <b-form-select v-model="selectedStream" :options="optionsStreams"></b-form-select>
-            </b-input-group>
+          <div style="display: flex; flex-direction: row">
+            <div style="flex: 0 0 auto; margin-right: 5px">
+              <b-button style="width: 85px" @click="removeRow" variant="outline-primary">Удалить</b-button>
+            </div>
+
+            <div style="flex: 1 1 1px; margin-right: 5px">
+              <b-input-group prepend="Вид учебной работы">
+                <b-form-select v-model="selectedJobs" :options="optionsJobs"></b-form-select>
+              </b-input-group>
+            </div>
+
+            <div style="flex: 1 1 1px; display: flex;">
+              <b-input-group prepend="Семестр">
+                <b-form-select v-model="selectedSemestr" :options="optionsSemestr"></b-form-select>
+              </b-input-group>
+            </div>
           </div>
 
         </div>
-
-        <div style="height: 10px"></div>
-
-        <div style="display: flex; flex-direction: row">
-          <div style="flex: 0 0 auto; margin-right: 5px">
-            <b-button style="width: 85px" @click="removeRow" variant="outline-primary">Удалить</b-button>
-          </div>
-
-          <div style="flex: 1 1 1px; margin-right: 5px">
-            <b-input-group prepend="Вид учебной работы">
-              <b-form-select v-model="selectedJobs" :options="optionsJobs"></b-form-select>
-            </b-input-group>
-          </div>
-
-          <div style="flex: 1 1 1px; display: flex;">
-            <b-input-group prepend="Семестр">
-              <b-form-select v-model="selectedSemestr" :options="optionsSemestr"></b-form-select>
-            </b-input-group>
-          </div>
-        </div>
-
       </div>
-    </div>
 
+    </div>
+    <div style="flex: 0 0 150px; ">
+      Фото
+    </div>
   </div>
 </template>
 
@@ -93,8 +109,7 @@
 import Grid from "@/components/Grid";
 import * as db from "./db.js";
 
-const tableName = "IndividualPlan",
-    gridId = tableName + "ID";
+const tableName = "IndividualPlan_1";
 
 export default {
   components: {
@@ -107,50 +122,65 @@ export default {
     return {
       windowName: this.$options._componentTag,
 
-      gridSettings: {
-        columnDefs: [
-          {
-            headerName: tableName + "ID",
-            field: tableName + "ID",
-            hide: true
-          },
+      columns: [
+        {datafield: 'ID', hidden: true},
+        {text: 'Дисциплина', datafield: 'DisciplinesName'},
+        {text: 'Поток', datafield: 'StreamsName'},
+        {text: 'Вид занятия', datafield: 'JobsName'},
+        {text: 'штатн', datafield: 'Shtatn', columngroup: 'nagruzka'},
+        {text: 'почас', datafield: 'Pochas', columngroup: 'nagruzka'},
+        {text: 'Почас в семестр', datafield: 'SUM'},
+        {datafield: 'DisciplinesID', hidden: true},
+        {datafield: 'StreamsID', hidden: true},
+        {datafield: 'JobsID', hidden: true}
+      ],
 
+      datafields: [
+        {name: 'ID', type: 'int'},
+        {name: 'DisciplinesName', type: 'string'},
+        {name: 'StreamsName', type: 'string'},
+        {name: 'JobsName', type: 'string'},
+        {name: 'Shtatn', type: 'int'},
+        {name: 'Pochas', type: 'int'},
+        {name: 'SUM', type: 'int'},
+        {name: 'DisciplinesID', type: 'int'},
+        {name: 'StreamsID', type: 'int'},
+        {name: 'JobsID', type: 'int'}
+      ],
 
-          {field: 'DisciplinesName', headerName: 'Дисциплина', minWidth: 10, width: 150},
-          {field: 'StreamsName', headerName: 'Поток', minWidth: 10, width: 150},
-          {field: 'JobsName', headerName: 'Вид занятия', minWidth: 10},
-          {
-            headerName: 'Нагрузка УУ', minWidth: 10,
-            children: [
-              {field: 'Shtatn', headerName: 'штатн'},
-              {field: 'Pochas', headerName: 'почас'},
-            ]
-          },
-          {field: 'SUM', headerName: 'Почас в семестр', minWidth: 10},
+      columngroups: [
+        {text: 'Нагрузка УУ', align: 'center', name: 'nagruzka'}
+      ],
 
+      columns2: [
+        {datafield: 'ID', hidden: true},
+        {text: 'Дисциплина', datafield: 'DisciplinesName'},
+        {text: 'Поток', datafield: 'StreamsName'},
+        {text: 'Вид занятия', datafield: 'JobsName'},
+        {text: 'штатн', datafield: 'Shtatn', columngroup: 'nagruzka2'},
+        {text: 'почас', datafield: 'Pochas', columngroup: 'nagruzka2'},
+        {text: 'Почас в семестр', datafield: 'SUM'},
+        {datafield: 'DisciplinesID', hidden: true},
+        {datafield: 'StreamsID', hidden: true},
+        {datafield: 'JobsID', hidden: true}
+      ],
 
-          {
-            headerName: "DisciplinesID",
-            field: "DisciplinesID",
-            hide: true
-          },
+      datafields2: [
+        {name: 'ID', type: 'int'},
+        {name: 'DisciplinesName', type: 'string'},
+        {name: 'StreamsName', type: 'string'},
+        {name: 'JobsName', type: 'string'},
+        {name: 'Shtatn', type: 'int'},
+        {name: 'Pochas', type: 'int'},
+        {name: 'SUM', type: 'int'},
+        {name: 'DisciplinesID', type: 'int'},
+        {name: 'StreamsID', type: 'int'},
+        {name: 'JobsID', type: 'int'}
+      ],
 
-          {
-            headerName: "StreamsID",
-            field: "StreamsID",
-            hide: true
-          },
-
-          {
-            headerName: "JobsID",
-            field: "JobsID",
-            hide: true
-          }
-
-
-        ],
-        rowData: [],
-      },
+      columngroups2: [
+        {text: 'Нагрузка УУ', align: 'center', name: 'nagruzka2'}
+      ],
 
       selectedTeacher: null,
       optionsTeachers: [
@@ -189,6 +219,7 @@ export default {
   },
 
   async mounted() {
+    this.busVue.$on('updateGrid', this.teacherChanged);
     // Список преподавателей
     let data = await db.getTable('Teachers');
     if (data && data.data) {
@@ -197,9 +228,10 @@ export default {
       if (this.teachers && Array.isArray(this.teachers) && this.teachers.length > 0) {
         this.optionsTeachers = [];
         this.teachers.forEach((item) => {
-          this.optionsTeachers.push({text: item.FIO, value: item.TeachersID})
+          this.optionsTeachers.push({text: item.FIO, value: item.ID})
         })
-        this.selectedTeacher = this.teachers[0].TeachersID;
+        console.info(this.teachers);
+        this.selectedTeacher = this.teachers[0].ID;
       } else {
         this.optionsTeachers = [
           {text: '-', value: null}
@@ -219,9 +251,9 @@ export default {
       if (this.disciplines && Array.isArray(this.disciplines) && this.disciplines.length > 0) {
         this.optionsDisciplines = [];
         this.disciplines.forEach((item) => {
-          this.optionsDisciplines.push({text: item.Name, value: item.DisciplinesID})
+          this.optionsDisciplines.push({text: item.Name, value: item.ID})
         })
-        this.selectedDisciplines = this.disciplines[0].DisciplinesID;
+        this.selectedDisciplines = this.disciplines[0].ID;
       } else {
         this.optionsDisciplines = [
           {text: '-', value: null}
@@ -241,9 +273,9 @@ export default {
       if (this.streams && Array.isArray(this.streams) && this.streams.length > 0) {
         this.optionsStreams = [];
         this.streams.forEach((item) => {
-          this.optionsStreams.push({text: item.Name, value: item.StreamsID})
+          this.optionsStreams.push({text: item.Name, value: item.ID})
         })
-        this.selectedStream = this.streams[0].StreamsID;
+        this.selectedStream = this.streams[0].ID;
       } else {
         this.optionsStreams = [
           {text: '-', value: null}
@@ -263,9 +295,9 @@ export default {
       if (this.jobs && Array.isArray(this.jobs) && this.jobs.length > 0) {
         this.optionsJobs = [];
         this.jobs.forEach((item) => {
-          this.optionsJobs.push({text: item.Name, value: item.JobsID})
+          this.optionsJobs.push({text: item.Name, value: item.Job_ID})
         })
-        this.selectedJobs = this.jobs[0].JobsID;
+        this.selectedJobs = this.jobs[0].Job_ID;
       } else {
         this.optionsJobs = [
           {text: '-', value: null}
@@ -279,11 +311,12 @@ export default {
     await this.updateGrid(1);
     await this.updateGrid(2);
 
-    this.busVue.$on('delRow', this.removeRow);
+    // this.busVue.$on('delRow', this.removeRow);
   },
 
   beforeDestroy() {
-    this.busVue.$off('delRow');
+    this.busVue.$off('updateGrid');
+    // this.busVue.$off('delRow');
   },
 
   methods: {
@@ -300,9 +333,9 @@ export default {
 
     // Добавить строку
     async addRow() {
-      // console.info("INSERT INTO " + tableName + "(TeachersID, DisciplinesID, StreamsID, JobsID, Shtatn, Pochas, Semestr, SUM) VALUES(" + "'" + this.selectedTeacher + "','" + this.selectedDisciplines + "','" + this.selectedStream + "','" + this.selectedJobs + "', 0, 0, '" + this.selectedSemestr + "','" + 0 + "');");
+      if (!this.selectedTeacher) return
 
-      let err = await db.run("INSERT INTO " + tableName + "(TeachersID, DisciplinesID, StreamsID, JobsID, Shtatn, Pochas, Semestr, SUM) VALUES(" + "'" + this.selectedTeacher + "','" + this.selectedDisciplines + "','" + this.selectedStream + "','" + this.selectedJobs + "', 0, 0, '" + this.selectedSemestr + "','" + 0 + "');")
+      let err = await db.run("INSERT INTO " + tableName + "(Prep_ID, Discipl_ID, Group_ID, Job_ID, Shtatn, Pochas, Semestr, SUM) VALUES(" + "'" + this.selectedTeacher + "','" + this.selectedDisciplines + "','" + this.selectedStream + "','" + this.selectedJobs + "', 0, 0, '" + this.selectedSemestr + "','" + 0 + "');")
       if (err) {
         console.error(err)
         this.bus.notify('Ошибка добавления записи', 'e');
@@ -314,45 +347,46 @@ export default {
     },
 
     // Удалить строку
-    removeRow() {
-      let rows = this.$refs.grid1.getSelected().concat(this.$refs.grid2.getSelected()),
-          stmt = db.getDB().prepare("DELETE FROM " + tableName + " WHERE " + gridId + " = (?)"),
-          promises = [];
+    async removeRow() {
+      let gridNum = 1, row = this.$refs.grid1.getSelected();
 
-      console.info(rows);
+      if (!row) {
+        row = this.$refs.grid2.getSelected();
+        gridNum = 2;
+      }
 
-      rows.forEach((item) => {
-        promises.push(new Promise((resolve) => {
-          stmt.run(item[gridId], (err) => {
-            if (err) console.warn(err)
-            resolve(err);
-          });
-        }));
-      })
-      Promise.all(promises).then((err) => {
-        if (err) console.warn(err)
-        stmt.finalize();
-        this.updateGrid(1);
-        this.updateGrid(2);
-      })
+      if (!row) {
+        return
+      }
+
+      let err = await db.run("DELETE FROM " + tableName + " WHERE ID = ( " + row.ID + " )")
+
+      if (err) {
+        console.error(err)
+        this.bus.notify('Ошибка удаления записи', 'e');
+      } else {
+        await this.updateGrid(gridNum);
+        // this.bus.notify('Данные удалены', 's');
+      }
     },
 
     // Обновить параметры грида
     async updateGrid(gridNum) {
       if (!this.selectedTeacher || !gridNum) return
 
-      let err = await db.all("SELECT IndividualPlan.*, Disciplines.Name as DisciplinesName, Streams.Name as StreamsName, " +
-          "Jobs.Name as JobsName FROM IndividualPlan " +
-          "INNER JOIN Disciplines ON Disciplines.DisciplinesID = IndividualPlan.DisciplinesID " +
-          "INNER JOIN Streams ON Streams.StreamsID = IndividualPlan.StreamsID " +
-          "INNER JOIN Jobs ON Jobs.JobsID = IndividualPlan.JobsID " +
-          "WHERE Semestr = " + (gridNum) + " AND TeachersID = " + this.selectedTeacher + ";");
+      let err = await db.all("SELECT IndividualPlan_1.*, Disciplines.Name as DisciplinesName, Streams.Name as StreamsName, " +
+          "Jobs.Name as JobsName FROM IndividualPlan_1 " +
+          "LEFT JOIN Disciplines ON Disciplines.ID = IndividualPlan_1.Discipl_ID " +
+          "LEFT JOIN Streams ON Streams.ID = IndividualPlan_1.Group_ID " +
+          "LEFT JOIN Jobs ON Jobs.Job_ID = IndividualPlan_1.Job_ID " +
+          "WHERE Semestr = " + (gridNum) + " AND Prep_ID = " + this.selectedTeacher + ";");
 
 
       if (err && !Array.isArray(err)) {
         console.error(err)
         // this.bus.notify('Ошибка обновления', 'e');
       } else {
+        console.info(err);
         // this.resetAllInputs();
         this.$refs["grid" + gridNum].setAll(err);
       }

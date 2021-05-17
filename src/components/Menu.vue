@@ -6,7 +6,7 @@
       filterable
       filter-mode="containsIgnoreCase"
       scroll-mode="scrollButtons"
-      toggle-mode='click'
+      toggle-mode='dblclick'
       @click="menuClick"
       selected-indexes='[ "8" ]'
   >
@@ -18,13 +18,13 @@
       <smart-tree-items-group>
         Индивидуальный учебный план
         <smart-tree-item>Почасовая УУ</smart-tree-item>
-        <smart-tree-item disabled>Штатная нагрузка</smart-tree-item>
+        <smart-tree-item>Штатная нагрузка</smart-tree-item>
       </smart-tree-items-group>
-      <smart-tree-item disabled>Сводный план работы кафедры</smart-tree-item>
-      <smart-tree-item disabled>Штатное расписание</smart-tree-item>
-      <smart-tree-item disabled>План распределения штатной нагрузки УУ</smart-tree-item>
-      <smart-tree-item disabled>План распределения почасовой нагрузки УУ</smart-tree-item>
-      <smart-tree-items-group>
+      <smart-tree-item>Сводный план работы кафедры</smart-tree-item>
+      <smart-tree-item>Штатное расписание</smart-tree-item>
+      <smart-tree-item>План распределения штатной нагрузки УУ</smart-tree-item>
+      <smart-tree-item>План распределения почасовой нагрузки УУ</smart-tree-item>
+      <smart-tree-items-group disabled>
         Распределение нагрузки УУ
         <smart-tree-item>I семестр</smart-tree-item>
         <smart-tree-item>II семестр</smart-tree-item>
@@ -33,7 +33,7 @@
     </smart-tree-items-group>
 
 
-    <smart-tree-items-group>
+    <smart-tree-items-group disabled>
       Учёт
       <smart-tree-items-group>
         Учёт выполнения почасовой нагрузки УУ

@@ -7,7 +7,8 @@
       <Grid
           ref="grid"
           :winName="'StudyStream'"
-          :settings="gridSettings"
+          :columnsGrid="columns"
+          :datafieldsGrid="datafields"
       ></Grid>
     </div>
 
@@ -70,8 +71,7 @@
 import Grid from "@/components/Grid";
 import * as db from "./db.js";
 
-const tableName = "Streams",
-    gridId = tableName + "ID";
+const tableName = "Streams";
 
 export default {
   components: {
@@ -84,31 +84,27 @@ export default {
     return {
       windowName: this.$options._componentTag,
 
-      gridSettings: {
-        columnDefs: [
-          {
-            headerName: tableName + "ID",
-            field: tableName + "ID",
-            hide: true
-          },
-          {field: 'Name', headerName: 'Название', minWidth: 10, width: 150},
-          {field: 'Institut', headerName: 'Институт', minWidth: 10, width: 150},
-          {field: 'StQuantity', headerName: 'Кол-во студентов', minWidth: 10},
-          {field: 'BudjetSt', headerName: 'Бюджетные', minWidth: 10},
-          {field: 'UnBudgetSt', headerName: 'Внебюджетные', minWidth: 10},
-          {
-            headerName: "YearID",
-            field: "YearID",
-            hide: true
-          },
-          {
-            headerName: "Note",
-            field: "Note",
-            hide: true
-          }
-        ],
-        rowData: [],
-      },
+      columns: [
+        {datafield: 'ID', hidden: true},
+        {text: 'Название', datafield: 'Name'},
+        {text: 'Институт', datafield: 'Institut'},
+        {text: 'Кол-во студентов', datafield: 'StQuantity'},
+        {text: 'Бюджетные', datafield: 'BudjetSt'},
+        {text: 'Внебюджетные', datafield: 'UnBudgetSt'},
+        {datafield: 'YearID', hidden: true},
+        {datafield: 'Note', hidden: true}
+      ],
+
+      datafields: [
+        {name: 'ID', type: 'int'},
+        {name: 'Name', type: 'string'},
+        {name: 'Institut', type: 'string'},
+        {name: 'StQuantity', type: 'int'},
+        {name: 'BudjetSt', type: 'int'},
+        {name: 'UnBudgetSt', type: 'int'},
+        {name: 'YearID', type: 'int'},
+        {name: 'Note', type: 'string'}
+      ],
 
       // Инпуты
       name: "",
@@ -128,67 +124,71 @@ export default {
   mounted() {
     // Обновление данных
     this.updateGrid();
-    this.busVue.$on('delRow', this.removeRow);
+
   },
 
   beforeDestroy() {
-    this.busVue.$off('delRow');
+
   },
 
   methods: {
-    // Сохранить данные
-    async save() {
-      let gridRows = this.$refs.grid.getAll();
-      await this.bus.dbFunc.setSave({[this.windowName]: {grid: gridRows}});
-    },
+    // async addRow() {
+    //   let fields = this.gridSettings.columnDefs,
+    //       fieldsStr = "";
+    //
+    //   fields.forEach((item) => {
+    //     let field = item.field;
+    //     if (field && field.toLowerCase().indexOf('id') === -1 && !item.hide) {
+    //       fieldsStr += field + ', ';
+    //     }
+    //   })
+    //   fieldsStr = fieldsStr.slice(0, -2);
+
 
     // Добавить строку
     async addRow() {
-      let fields = this.gridSettings.columnDefs,
+      let columns = this.columns,
           fieldsStr = "";
 
-      fields.forEach((item) => {
-        let field = item.field;
-        if (field && field.toLowerCase().indexOf('id') === -1 && !item.hide) {
-          fieldsStr += field + ', ';
+      columns.forEach((item) => {
+        let column = item.datafield;
+        if (column && !item.hidden) {
+          fieldsStr += column + ', ';
         }
       })
       fieldsStr = fieldsStr.slice(0, -2);
 
       let err = await db.run("INSERT INTO " + tableName + "(" + fieldsStr + ") VALUES(" + "'" + this.name + "','" + this.university + "','" + this.studentAmount + "','" + this.budget + "','" + this.unbudget + "');")
+
       if (err) {
         console.error(err)
         this.bus.notify('Ошибка добавления записи', 'e');
       } else {
-        this.updateGrid();
+        await this.updateGrid();
         this.name = "";
         this.university = "";
         this.studentAmount = "";
         this.budget = "";
         this.unbudget = "";
-        this.bus.notify('Данные добавлены', 's');
+        // this.bus.notify('Данные добавлены', 's');
       }
     },
 
     // Удалить строку
-    removeRow() {
-      let rows = this.$refs.grid.getSelected(),
-          stmt = db.getDB().prepare("DELETE FROM " + tableName + " WHERE " + gridId + " = (?)"),
-          promises = [];
+    async removeRow() {
+      let row = this.$refs.grid.getSelected();
 
-      rows.forEach((item) => {
-        promises.push(new Promise((resolve) => {
-          stmt.run(item[gridId], (err) => {
-            if (err) console.warn(err)
-            resolve(err);
-          });
-        }));
-      })
-      Promise.all(promises).then((err) => {
-        if (err) console.warn(err)
-        stmt.finalize();
-        this.updateGrid();
-      })
+      if (!row) return
+
+      let err = await db.run("DELETE FROM " + tableName + " WHERE ID = ( " + row.ID + " )")
+
+      if (err) {
+        console.error(err)
+        this.bus.notify('Ошибка удаления записи', 'e');
+      } else {
+        await this.updateGrid();
+        // this.bus.notify('Данные удалены', 's');
+      }
     },
 
     // Обновить параметры грида
@@ -203,7 +203,6 @@ export default {
       }
       this.$refs.grid.setAll(data);
     }
-
   }
 }
 </script>
